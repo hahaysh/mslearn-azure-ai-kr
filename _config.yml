@@ -1,6 +1,7 @@
 remote_theme: MicrosoftLearning/Jekyll-Theme
 exclude:
   - readme.md
+  - Instructions-kr/README.md
   - .github/
 header_pages:
   - index.html
