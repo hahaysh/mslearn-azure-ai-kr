@@ -150,7 +150,15 @@ git status --short
 
 ## GitHub Pages
 
-이번 번역 작업에는 게시가 포함되지 않습니다. 게시하려면 별도 검토와 명시적인 요청이 필요합니다.
+| 항목 | 값 |
+| --- | --- |
+| 사이트 URL | `https://hahaysh.github.io/mslearn-azure-ai-kr/` |
+| 게시 방식 | GitHub Actions의 `pages.yml` 워크플로 |
+| 게시 소스 | `main` 브랜치의 저장소 루트(`/`) |
+| 검증 커밋 | `554c8f32665bf722cd787e91c2780c8c3da09df2` |
+| 워크플로 실행 | `36310706415` |
+| 검증일 | `2026-09-27` |
+| 검증 결과 | 빌드 및 배포 성공, 루트·한국어 실습 27개·자산 4개 모두 HTTP 200 |
 
 ## 알려진 원문 문제
 
@@ -160,3 +168,4 @@ git status --short
 - `azure-kubernetes-service/02-aks-configure-container.md`: 설명과 주석은 Secret 값을 base64로 인코딩한다고 안내하지만 매니페스트는 평문을 받는 `stringData`를 사용합니다.
 - `cosmosdb/01-build-rag-document-store.md`: 가상 환경은 `.venv`로 만들지만 문제 해결의 PowerShell 활성화 경로는 `.\venv\Scripts\Activate.ps1`입니다.
 - `integrate-services/02-eventgrid-publish-receive-events.md`: `all_events` 결과의 `event_type`에 이벤트 유형 대신 `modelName`을 할당합니다.
+- `integrate-services/03-azure-functions-mcp-server.md`: Microsoft Learn 문서 링크 하나가 루트 상대 경로 `/azure/azure-functions/functions-bindings-mcp`를 사용합니다. 원문 경로를 보존했으며 GitHub Pages에서는 호스트 루트 링크로 해석됩니다.
