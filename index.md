@@ -13,7 +13,7 @@ The following exercises are designed to provide you with a hands-on learning exp
 Review the [lab requirements]({{ site.github.url }}/lab-requirements.html) for the accounts and software used across all exercises. Each exercise also includes a **Before you start** section with a subset of those requirements specific to that exercise.
 
 ## Topic areas
-{% assign exercises = site.pages | where_exp:"page", "page.url contains '/instructions'" %}
+{% assign exercises = site.pages | where_exp:"page", "page.url contains '/Instructions-kr/'" %}
 {% assign grouped_exercises = exercises | group_by: "lab.topic" %}
 
 <ul>
