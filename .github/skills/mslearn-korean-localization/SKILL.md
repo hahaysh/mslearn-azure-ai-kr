@@ -1,6 +1,6 @@
 ---
 name: mslearn-korean-localization
-description: "Translate and maintain MicrosoftLearning-style course repositories in Korean by mirroring Instructions to Instructions-kr while preserving the English source, relative structure, technical identifiers, assets, links, and reproducible lab behavior. Use for requests to analyze, plan, translate, synchronize, validate, or publish Korean versions of repositories such as PL-7008, MS-4019, and AI-200."
+description: "Translate and maintain MicrosoftLearning-style course repositories in Korean by mirroring instructions to instructions-kr while preserving the English source, relative structure, technical identifiers, assets, links, and reproducible lab behavior. Use for requests to analyze, plan, translate, synchronize, validate, or publish Korean versions of repositories such as PL-7008, MS-4019, and AI-200."
 license: MIT
 metadata:
   author: hahaysh
@@ -9,7 +9,7 @@ metadata:
 
 # Microsoft Learn Korean Lab Localization
 
-Create and maintain a Korean mirror of the English `Instructions` tree in MicrosoftLearning-style course repositories.
+Create and maintain a Korean mirror of the English `instructions` tree in MicrosoftLearning-style course repositories.
 
 For a reusable prompt that starts an initial course translation, see
 [the course translation prompt](prompts/translate-course.md).
@@ -17,11 +17,11 @@ For a reusable prompt that starts an initial course translation, see
 ## Default layout
 
 ```text
-Instructions/          # English source; never edit during localization
+instructions/          # English source; never edit during localization
 ├─ Labs/
 └─ media/
 
-Instructions-kr/       # Korean mirror
+instructions-kr/       # Korean mirror
 ├─ README.md           # Translation and synchronization record
 ├─ Labs/
 └─ media/
@@ -31,13 +31,13 @@ Use these defaults unless repository inspection proves that the course uses diff
 
 | Setting | Default |
 |---|---|
-| Source root | `Instructions` |
-| Korean root | `Instructions-kr` |
-| Source labs | `Instructions/Labs` |
-| Korean labs | `Instructions-kr/Labs` |
-| Source media | `Instructions/media` |
-| Korean media | `Instructions-kr/media` |
-| Translation README | `Instructions-kr/README.md` |
+| Source root | `instructions` |
+| Korean root | `instructions-kr` |
+| Source labs | `instructions/Labs` |
+| Korean labs | `instructions-kr/Labs` |
+| Source media | `instructions/media` |
+| Korean media | `instructions-kr/media` |
+| Translation README | `instructions-kr/README.md` |
 | Pages branch | Repository default branch |
 | Pages source | Repository root |
 
@@ -72,7 +72,7 @@ Before editing:
 
 ### 2. Establish the translation contract
 
-Create `Instructions-kr/README.md` from
+Create `instructions-kr/README.md` from
 [the template](templates/labs-kr-readme.md) when it does not exist.
 
 Replace all template placeholders:
@@ -90,8 +90,8 @@ Do not add YAML front matter to this README. It is a maintainer document and mus
 
 For an initial translation:
 
-1. Create `Instructions-kr`.
-2. Reproduce the relative directory structure from `Instructions`.
+1. Create `instructions-kr`.
+2. Reproduce the relative directory structure from `instructions`.
 3. Create one Korean file for every translatable source Markdown file at the same relative path.
 4. Copy referenced images and other required non-Markdown assets to the same relative paths.
 5. Translate Markdown files while preserving their structure.
@@ -103,11 +103,11 @@ For synchronization:
 2. Compare that commit to the current source:
 
    ```powershell
-   git diff <last-synchronized-commit>..HEAD -- Instructions
+   git diff <last-synchronized-commit>..HEAD -- instructions
    ```
 
 3. Classify additions, deletions, renames, and content changes.
-4. Map each source path relative to `Instructions` onto the same path relative to `Instructions-kr`.
+4. Map each source path relative to `instructions` onto the same path relative to `instructions-kr`.
 5. Apply Markdown changes semantically. Never replace an existing Korean Markdown file with the new English source.
 6. Copy changed required binary assets to their mirrored paths.
 7. Update the source commit and review date only after every change passes validation.
@@ -203,7 +203,7 @@ When a human-readable name is referenced later, keep the operational English nam
 
 ### 8. Handle images, assets, and links
 
-- Mirror required images and other non-Markdown assets from `Instructions` to the same relative paths under `Instructions-kr`.
+- Mirror required images and other non-Markdown assets from `instructions` to the same relative paths under `instructions-kr`.
 - Preserve binary assets unchanged unless the user explicitly requests localized screenshots or files.
 - Preserve image paths and translate alt text.
 - Preserve link destinations and translate link text.
@@ -219,14 +219,14 @@ Run the bundled validator from the repository root:
 python .github\skills\mslearn-korean-localization\scripts\validate_translation.py --repo .
 ```
 
-For a repository that still uses the legacy `Instructions/Labs-kr` layout, pass the paths explicitly:
+For a repository that still uses the legacy `instructions/Labs-kr` layout, pass the paths explicitly:
 
 ```powershell
 python .github\skills\mslearn-korean-localization\scripts\validate_translation.py `
   --repo . `
-  --source Instructions\Labs `
-  --target Instructions\Labs-kr `
-  --readme Instructions\Labs-kr\README.md
+  --source instructions\Labs `
+  --target instructions\Labs-kr `
+  --readme instructions\Labs-kr\README.md
 ```
 
 Also run:
@@ -244,7 +244,7 @@ Only publish when explicitly requested.
 
 For the standard layout:
 
-1. Restrict the root `index.md` query to `/Instructions-kr/Labs/`.
+1. Restrict the root `index.md` query to `/instructions-kr/Labs/`.
 2. Commit and push the translated files and index.
 3. Resolve the repository name from `git remote`.
 4. Confirm `gh auth status`.
@@ -256,7 +256,7 @@ For the standard layout:
 Expected lab URL:
 
 ```text
-https://<owner>.github.io/<repository>/Instructions-kr/Labs/<lab>.html
+https://<owner>.github.io/<repository>/instructions-kr/Labs/<lab>.html
 ```
 
 Use GitHub CLI commands instead of requiring the user to change repository settings manually.
@@ -277,7 +277,7 @@ Before completion, verify:
 - Technical identifiers remain unchanged.
 - Local links and image paths resolve.
 - Required referenced assets exist at the mirrored relative paths.
-- `Instructions-kr/README.md` has no YAML front matter.
+- `instructions-kr/README.md` has no YAML front matter.
 - Changes do not escape the approved scope.
 
 ## Completion report
