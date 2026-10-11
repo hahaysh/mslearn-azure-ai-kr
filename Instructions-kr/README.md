@@ -163,7 +163,7 @@ git status --short
 ## 알려진 원문 문제
 
 - `app-sec-config/01-aks-retrieve-secrets.md`: 파일명은 AKS를 나타내지만 실습 내용은 Azure Key Vault 비밀 관리입니다.
-- `azure-container-apps/02-aca-manage-containers.md`: PowerShell 코드 펜스 하나가 닫히지 않아 뒤의 설명과 Bash 블록을 포함합니다. 번역본은 보이는 한국어 콘텐츠와 별도로 원본 블록을 HTML 주석 안에 보존합니다.
+- `azure-container-apps/02-aca-manage-containers.md`: PowerShell 코드 펜스 하나가 닫히지 않아 뒤의 설명과 Bash 블록을 포함합니다. 번역본은 보이는 한국어 콘텐츠와 별도로 원본 블록을 Jekyll Liquid 주석 안에 보존합니다.
 - `azure-database-postgresql/02-implement-vector-search.md`: 설명에서는 임베딩 차원을 384로 안내하지만 테이블 정의는 `vector(330)`을 사용합니다.
 - `azure-kubernetes-service/02-aks-configure-container.md`: 설명과 주석은 Secret 값을 base64로 인코딩한다고 안내하지만 매니페스트는 평문을 받는 `stringData`를 사용합니다.
 - `cosmosdb/01-build-rag-document-store.md`: 가상 환경은 `.venv`로 만들지만 문제 해결의 PowerShell 활성화 경로는 `.\venv\Scripts\Activate.ps1`입니다.

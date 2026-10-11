@@ -181,7 +181,8 @@ lab:
     ```
 
     **PowerShell**
-<!-- 원문의 미종료 PowerShell 펜스를 동기화 검증용으로 보존합니다.
+    {% comment %}
+원문의 미종료 PowerShell 펜스를 동기화 검증용으로 보존합니다.
     ```powershell
     (Invoke-RestMethod -Uri "https://$FQDN/").model
 
@@ -192,7 +193,7 @@ lab:
     az containerapp show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
         --query "properties.template.containers[0].env" -o table
     ```
--->
+    {% endcomment %}
     ```powershell
     (Invoke-RestMethod -Uri "https://$FQDN/").model
 
