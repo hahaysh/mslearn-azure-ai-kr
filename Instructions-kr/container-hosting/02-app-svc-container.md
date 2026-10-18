@@ -198,6 +198,14 @@ lab:
 
 1. 다음 명령을 실행하여 웹앱에 AcrPull 역할을 할당합니다.
 
+    **Git Bash**
+    ```bash
+    # 경로 변환을 끄고 아래처럼 실행
+    MSYS_NO_PATHCONV=1 az role assignment create \
+        --assignee "$PRINCIPAL_ID" \
+        --scope "$ACR_ID" \
+        --role AcrPull
+    ```
     **Bash**
     ```bash
     az role assignment create \
