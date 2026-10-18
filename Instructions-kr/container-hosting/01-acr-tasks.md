@@ -185,6 +185,18 @@ lab:
 
 1. 다음 명령을 실행하여 컨테이너에서 Flask 애플리케이션이 올바르게 로드되는지 확인합니다.
 
+    **Git Bash**    
+    ```bash
+    # ACR 이름 확인
+    echo "$ACR_NAME"
+
+    # Git Bash의 경로 자동 변환을 막고 ACR Tasks에서 이미지 실행
+    MSYS_NO_PATHCONV=1 az acr run \
+        --registry "$ACR_NAME" \
+        --cmd "$ACR_NAME.azurecr.io/inference-api:v1.0.0 python -c 'from app import app'" \
+        /dev/null
+    ```
+
     **Bash**
     ```bash
     az acr run \
@@ -192,6 +204,7 @@ lab:
         --cmd "$ACR_NAME.azurecr.io/inference-api:v1.0.0 python -c 'from app import app'" \
         /dev/null
     ```
+    
 
     **PowerShell**
     ```powershell
