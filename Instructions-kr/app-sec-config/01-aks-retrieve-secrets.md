@@ -329,7 +329,7 @@ AI 애플리케이션은 일반적으로 모델 엔드포인트와 데이터 저
 
     **Bash**
     ```bash
-    source .venv/bin/activate
+    source .venv/Scripts/activate
     ```
 
     **PowerShell**

@@ -283,7 +283,7 @@ OpenTelemetry는 애플리케이션에서 추적, 메트릭 및 로그를 수집
 
     **Bash**
     ```bash
-    source .venv/bin/activate
+    source .venv/Scripts/activate
     ```
 
     **PowerShell**

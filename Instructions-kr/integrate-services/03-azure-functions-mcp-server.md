@@ -197,7 +197,7 @@ Model Context Protocol(MCP)은 AI 에이전트와 언어 모델이 외부 도구
 
     **Bash**
     ```bash
-    source .venv/bin/activate
+    source .venv/Scripts/activate
     ```
 
     **PowerShell**

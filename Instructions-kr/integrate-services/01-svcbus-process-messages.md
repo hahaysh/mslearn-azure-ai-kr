@@ -401,7 +401,7 @@ AI 워크플로는 요청 수신과 모델 추론을 분리하고 결과를 여�
 
     **Bash**
     ```bash
-    source .venv/bin/activate
+    source .venv/Scripts/activate
     ```
 
     **PowerShell**

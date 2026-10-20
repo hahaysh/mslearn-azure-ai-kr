@@ -263,7 +263,7 @@ PersistentVolumeClaim(PVC)은 Pod에 탑재할 저장소 리소스를 Azure에 �
 
     **Bash**
     ```bash
-    source .venv/bin/activate
+    source .venv/Scripts/activate
     ```
 
     **PowerShell**

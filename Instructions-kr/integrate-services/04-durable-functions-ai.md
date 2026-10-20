@@ -283,7 +283,7 @@ Durable Functions는 오케스트레이션 기록과 상태를 저장하기 위�
 
     **Bash**
     ```bash
-    source .venv/bin/activate
+    source .venv/Scripts/activate
     ```
 
     **PowerShell**

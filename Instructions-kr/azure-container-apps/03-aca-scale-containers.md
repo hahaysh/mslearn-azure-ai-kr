@@ -199,7 +199,7 @@ AI 애플리케이션은 추론 요청 급증, 일괄 작업 또는 에이전트
 
     **Bash**
     ```bash
-    source .venv/bin/activate
+    source .venv/Scripts/activate
     ```
 
     **PowerShell**

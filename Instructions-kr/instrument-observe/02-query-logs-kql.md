@@ -130,7 +130,7 @@ Kusto 쿼리 언어(KQL)는 Application Insights에서 로그 데이터를 분�
 
     **Bash**
     ```bash
-    source .venv/bin/activate
+    source .venv/Scripts/activate
     ```
 
     **PowerShell**

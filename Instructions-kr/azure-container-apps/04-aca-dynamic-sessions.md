@@ -335,7 +335,7 @@ Azure Container Apps 동적 세션은 AI 생성 코드 또는 사용자가 제�
 
     **Bash**
     ```bash
-    source .venv/bin/activate
+    source .venv/Scripts/activate
     ```
 
     **PowerShell**

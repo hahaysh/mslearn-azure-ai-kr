@@ -299,7 +299,7 @@ AI 애플리케이션은 모델 엔드포인트 및 일괄 처리 크기와 같�
 
     **Bash**
     ```bash
-    source .venv/bin/activate
+    source .venv/Scripts/activate
     ```
 
     **PowerShell**

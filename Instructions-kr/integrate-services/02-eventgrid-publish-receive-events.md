@@ -347,7 +347,7 @@ AI 콘텐츠 조정 시스템은 제출된 콘텐츠를 분류하고 검토하�
 
     **Bash**
     ```bash
-    source .venv/bin/activate
+    source .venv/Scripts/activate
     ```
 
     **PowerShell**

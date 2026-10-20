@@ -233,7 +233,7 @@ App Service는 모든 sitecontainer 간에 **/home** 볼륨을 자동으로 공�
 
     **Bash**
     ```bash
-    source .venv/bin/activate
+    source .venv/Scripts/activate
     ```
 
     **PowerShell**
