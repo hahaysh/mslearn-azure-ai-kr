@@ -270,7 +270,7 @@ Model Context Protocol(MCP)은 AI 에이전트와 언어 모델이 외부 도구
     ```
 
     ```prompt
-    summarize_text 도구를 사용하여 다음 텍스트를 요약합니다: 'Azure Functions is a serverless compute service that lets you run event-triggered code without having to explicitly provision or manage infrastructure.'
+    summarize_text 도구를 사용하여 다음 텍스트를 요약하세요: 'Azure Functions는 인프라를 명시적으로 프로비저닝하거나 관리할 필요 없이 이벤트 트리거 기반 코드를 실행할 수 있게 해주는 서버리스 컴퓨팅 서비스입니다.'
     ```
 
     결과가 **Summary of**로 시작하고 단어 수와 입력 텍스트의 일부 미리 보기가 뒤따르는 요약 문자열을 포함하는지 확인합니다.
@@ -293,8 +293,8 @@ Model Context Protocol(MCP)은 AI 에이전트와 언어 모델이 외부 도구
     ```
 
     ```prompt
-    다음 텍스트는 송장, 계약서 또는 메모 중 무엇인가요?
-    'Invoice B1234 for services rendered in January 2026. Total amount due: $5,000.'
+    다음 텍스트는 청구서, 계약서, 메모 중 무엇인가요?
+    '2026년 1월에 제공된 서비스에 대한 청구서 B1234. 총 지불 금액: 5,000달러.'
     ```
 
     Copilot은 **classify_document** 도구가 이 요청에 적합하다고 판단하여 자동으로 호출해야 합니다. 결과가 분류를 반환하는지 확인합니다. 터미널 출력에서 함수가 호출되었는지 확인합니다.
@@ -311,7 +311,7 @@ Model Context Protocol(MCP)은 AI 에이전트와 언어 모델이 외부 도구
     ```
 
     ```prompt
-    다음 텍스트를 간단히 요약해 주세요: 'Machine learning models require large datasets for training. The quality of the training data directly impacts model accuracy. Data preprocessing steps include cleaning, normalization, and feature extraction.'
+    이 글을 간략히 요약해 주세요: '머신러닝 모델을 학습시키려면 대규모 데이터셋이 필요합니다. 학습 데이터의 품질은 모델의 정확도에 직접적인 영향을 미칩니다. 데이터 전처리 과정에는 데이터 정제, 정규화, 특징 추출 등이 포함됩니다.'
     ```
 
     Copilot은 **summarize_text** 도구를 호출하고 요약을 반환해야 합니다. 터미널 출력에 함수 호출이 표시되는지 확인합니다.
