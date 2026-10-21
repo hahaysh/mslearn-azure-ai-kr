@@ -253,7 +253,7 @@ Model Context Protocol(MCP)은 AI 에이전트와 언어 모델이 외부 도구
     ```
 
     ```prompt
-    classify_document 도구를 사용하여 다음 텍스트를 분류합니다: 'This agreement is entered into by Party A and Party B'  분류 범주는 contract, invoice, memo입니다.
+    classify_document 도구를 사용하여 다음 텍스트를 분류합니다: '본 계약은 갑과 을 사이에 체결된다.'  분류 범주는 contract, invoice, memo입니다.
     ```
 
     Copilot이 도구를 호출하고 응답을 반환합니다. 결과에 **contract** 분류가 포함되어 있는지 확인합니다. 스텁 구현은 쉼표로 구분된 목록의 첫 번째 범주를 선택하므로, 결과는 프롬프트에서 제공한 첫 번째 범주와 일치합니다. 터미널 출력에서 함수 호출 로그 항목을 확인합니다.
