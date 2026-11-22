@@ -28,7 +28,7 @@ lab:
 
 실습을 완료하려면 다음이 필요합니다.
 
-- 필요한 Azure 서비스를 프로비전할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
+- 필요한 Azure 서비스를 프로비저닝할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
 - [Visual Studio Code](https://code.visualstudio.com/)를 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나에 설치
 - [Python 3.12](https://www.python.org/downloads/) 이상
 - 최신 버전의 [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
@@ -37,7 +37,7 @@ lab:
 
 ## 프로젝트 시작 파일 다운로드 및 Azure Managed Redis 배포
 
-이 섹션에서는 앱의 시작 파일을 다운로드하고 스크립트를 사용하여 구독에 Azure Managed Redis 배포를 초기화합니다. Azure Managed Redis 배포를 완료하는 데 5~10분이 걸리므로 먼저 배포를 시작한 다음 프로비전이 진행되는 동안 앱에 코드를 추가합니다.
+이 섹션에서는 앱의 시작 파일을 다운로드하고 스크립트를 사용하여 구독에 Azure Managed Redis 배포를 초기화합니다. Azure Managed Redis 배포를 완료하는 데 5~10분이 걸리므로 먼저 배포를 시작한 다음 프로비저닝이 진행되는 동안 앱에 코드를 추가합니다.
 
 1. 브라우저를 열고 다음 URL을 입력하여 시작 파일을 다운로드합니다. 파일은 기본 다운로드 위치에 저장됩니다.
 
@@ -49,7 +49,7 @@ lab:
 
 1. Visual Studio Code(VS Code)를 시작하고 메뉴에서 **파일(File) > 폴더 열기...(Open Folder...)**를 선택한 다음 프로젝트 파일이 있는 폴더를 선택합니다.
 
-1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위의 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 내용은 변경하지 마세요.
+1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위의 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 내용은 변경하지 않습니다.
 
     ```
     "<your-resource-group-name>" # Resource Group name
@@ -96,15 +96,13 @@ lab:
 
 1. 코드 추가를 시작하려면 *client/pubsub_functions.py* 파일을 엽니다.
 
->**참고:** 애플리케이션에 추가하는 코드 블록은 해당 코드 섹션의 주석과 들여쓰기가 일치해야 합니다.
-
 ### Azure Managed Redis 연결 코드 추가
 
 이 섹션에서는 Microsoft Entra ID로 인증하는 Redis 클라이언트를 만드는 코드를 추가합니다. Entra ID를 사용하면 앱이 액세스 키를 처리하지 않아도 됩니다.
 
 **get_client()** 함수는 **REDIS_HOST** 환경 변수에서 Redis 엔드포인트를 읽고 **create_from_default_azure_credential()**을 호출하여 자격 증명 공급자를 빌드합니다. 이 공급자는 **DefaultAzureCredential**을 사용하여 Microsoft Entra 토큰을 가져오고 백그라운드에서 자동으로 새로 고치므로 장시간 실행되는 수신기 연결도 인증된 상태를 유지합니다. 클라이언트는 TLS를 통해 포트 10000으로 연결하고 응답을 문자열로 디코딩합니다.
 
-> **팁:** 일치하는 **BEGIN** 및 **END** 주석과 같은 들여쓰기 수준에 코드를 붙여넣습니다. 블록이 정렬되지 않으면 붙여넣은 줄을 선택하고 **Tab** 또는 **Shift+Tab**을 사용하여 전체 블록을 오른쪽이나 왼쪽으로 이동합니다.
+> **팁:** 코드 들여쓰기를 올바르게 유지하려면 코드를 왼쪽 여백의 첫 번째 열에 맞춰 붙여넣습니다. 붙여넣은 줄 전체를 선택하고 **Tab**을 눌러 **BEGIN / END** 표시와 정렬합니다. 필요하면 **Shift+Tab**을 눌러 들여쓰기를 줄입니다.
 
 1. **# BEGIN CONNECTION CODE SECTION** 주석을 찾고 그 아래에 다음 코드를 추가합니다. 코드 들여쓰기가 올바른지 확인합니다.
 
@@ -325,14 +323,14 @@ lab:
 
 1. 이전 단계에서 만든 파일의 환경 변수를 터미널 세션으로 불러오려면 적절한 명령을 실행합니다.
 
-    **Bash**
-    ```bash
-    source .env
-    ```
-
     **PowerShell**
     ```powershell
     . .\.env.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .env
     ```
 
     >**참고:** 터미널을 열어 둡니다. 터미널을 닫고 새 터미널을 만들면 환경 변수를 다시 불러오기 위해 이 명령을 실행해야 합니다.
@@ -353,16 +351,16 @@ lab:
     python -m venv .venv
     ```
 
-1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서는 PowerShell 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
-
-    **Bash**
-    ```bash
-    source .venv/Scripts/activate
-    ```
+1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Windows에서는 PowerShell 명령을 사용하고, Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
 
     **PowerShell**
     ```powershell
     .\.venv\Scripts\Activate.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .venv/bin/activate
     ```
 
 1. VS Code 터미널에서 다음 명령을 실행하여 종속성을 설치합니다.

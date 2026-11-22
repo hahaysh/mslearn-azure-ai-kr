@@ -15,11 +15,11 @@ lab:
 
 Model Context Protocol(MCP)은 AI 에이전트와 언어 모델이 외부 도구를 검색하고 호출하는 방법을 정의하는 개방형 표준입니다. Azure Functions에는 MCP 확장이 포함되어 있어 함수 앱을 MCP 서버로 노출할 수 있으며, 각 함수는 MCP 클라이언트가 호출할 수 있는 도구가 됩니다.
 
-이 연습에서는 MCP 확장을 사용하는 Azure Functions 프로젝트를 만들고, 문서 처리를 위한 도구 트리거 함수를 정의하고, MCP 서버 설정을 구성한 다음, 에이전트 모드의 GitHub Copilot에서 연결하여 서버를 로컬로 테스트합니다.
+이 실습에서는 MCP 확장을 사용하는 Azure Functions 프로젝트를 만들고, 문서 처리를 위한 도구 트리거 함수를 정의하고, MCP 서버 설정을 구성한 다음, 에이전트 모드의 GitHub Copilot에서 연결하여 서버를 로컬로 테스트합니다.
 
->**참고:** 이 연습에서는 현재 활발히 발전 중인 Azure Functions MCP 확장을 사용합니다. 최신 설정 지침, API 범위 및 구성 옵션은 [Azure Functions MCP 확장 설명서](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-mcp)를 참조하세요.
+>**참고:** 이 실습에서는 현재 활발히 발전 중인 Azure Functions MCP 확장을 사용합니다. 최신 설정 지침, API 범위 및 구성 옵션은 [Azure Functions MCP 확장 설명서](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-mcp)를 참조합니다.
 
-이 연습에서 수행하는 작업:
+이 실습에서 수행하는 작업:
 
 - MCP 확장을 사용하는 새 Azure Functions 프로젝트 만들기
 - *host.json*에서 MCP 서버 설정 구성하기
@@ -27,13 +27,13 @@ Model Context Protocol(MCP)은 AI 에이전트와 언어 모델이 외부 도구
 - Python 환경 구성하기
 - 에이전트 모드의 GitHub Copilot을 사용하여 MCP 서버를 로컬로 테스트하기
 
-이 연습을 완료하는 데 약 **25**분이 걸립니다.
+이 실습을 완료하는 데 약 **25**분이 걸립니다.
 
 ## 시작하기 전에
 
-연습을 완료하려면 다음이 필요합니다.
+실습을 완료하려면 다음이 필요합니다.
 
-- [Visual Studio Code](https://code.visualstudio.com/) 및 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나.
+- [Visual Studio Code](https://code.visualstudio.com/)가 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나에 설치되어 있어야 합니다.
 - Visual Studio Code용 [Azure Functions 확장](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions).
 - [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local) v4 이상.
 - [Python 3.9](https://www.python.org/downloads/) 이상.
@@ -53,7 +53,7 @@ Model Context Protocol(MCP)은 AI 에이전트와 언어 모델이 외부 도구
     |--|--|
     | Select the folder... | 이전 단계에서 연 폴더를 선택합니다. |
     | Select a project type | **Python**을 선택합니다. |
-    | Select a Python interpreter... | **Skip virtual environment**(가상 환경 건너뛰기)를 선택합니다. |
+    | Select a Python interpreter... | **가상 환경 건너뛰기(Skip virtual environment)**를 선택합니다. |
     | Select a template... | **HTTP trigger**를 선택합니다. |
     | Function name | 기본값인 **http_trigger**를 그대로 사용합니다. |
     | Authorization level | **ANONYMOUS**를 선택합니다. |
@@ -193,16 +193,16 @@ Model Context Protocol(MCP)은 AI 에이전트와 언어 모델이 외부 도구
     python -m venv .venv
     ```
 
-1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Linux/macOS에서는 Bash 명령을 사용하고 Windows에서는 PowerShell 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
-
-    **Bash**
-    ```bash
-    source .venv/Scripts/activate
-    ```
+1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Windows에서는 PowerShell 명령을 사용하고, Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
 
     **PowerShell**
     ```powershell
     .\.venv\Scripts\Activate.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .venv/bin/activate
     ```
 
 1. 다음 명령을 VS Code 터미널에서 실행하여 종속성을 설치합니다.
@@ -219,7 +219,7 @@ Model Context Protocol(MCP)은 AI 에이전트와 언어 모델이 외부 도구
 
 1. Visual Studio Code에서 **계정(Accounts)** 아이콘을 선택하고 GitHub Copilot을 사용할 수 있는 계정으로 GitHub에 로그인되어 있는지 확인합니다. 로그인되어 있지 않으면 계속하기 전에 안내에 따라 로그인합니다.
 
-1. **F5**를 눌러 디버거가 연결된 상태로 Functions 런타임을 시작합니다. 필요한 스토리지 계정에 대한 경고가 표시되면 **Skip for now**(지금 건너뛰기)를 선택합니다. Visual Studio Code가 Core Tools를 시작하고 디버거를 연결한 다음, 함수 엔드포인트가 표시된 터미널 패널을 엽니다.
+1. **F5**를 눌러 디버거가 연결된 상태로 Functions 런타임을 시작합니다. 필요한 스토리지 계정에 대한 경고가 표시되면 **지금 건너뛰기(Skip for now)**를 선택합니다. Visual Studio Code가 Core Tools를 시작하고 디버거를 연결한 다음, 함수 엔드포인트가 표시된 터미널 패널을 엽니다.
 
     >**참고:** 통합 터미널에서 `func start`를 실행하면 디버거 없이 런타임을 시작할 수도 있습니다.
 
@@ -241,7 +241,7 @@ Model Context Protocol(MCP)은 AI 에이전트와 언어 모델이 외부 도구
 
 도구 이름을 직접 지정하는 명시적 프롬프트는 MCP 도구를 호출하게 하는 가장 신뢰할 수 있는 방법입니다. 모델은 대개 도구를 호출하지만 응답에서 도구의 원시 출력을 다시 표현하거나 요약할 수도 있습니다. 도구가 호출되지 않으면 터미널 출력을 확인한 다음 프롬프트를 다시 제출합니다.
 
-1. Copilot 채팅에 다음 프롬프트를 입력하여 **classify_document** 도구를 테스트합니다. **참고:** Copilot이 MCP 도구를 처음 호출할 때 권한 프롬프트가 표시될 수 있습니다. Copilot이 도구를 호출하도록 **Allow in this Session**(이 세션에서 허용)을 선택합니다.
+1. Copilot 채팅에 다음 프롬프트를 입력하여 **classify_document** 도구를 테스트합니다. **참고:** Copilot이 MCP 도구를 처음 호출할 때 권한 프롬프트가 표시될 수 있습니다. Copilot이 도구를 호출하도록 **이 세션에서 허용(Allow in this Session)**을 선택합니다.
 
     <!--
     ```
@@ -293,7 +293,7 @@ Model Context Protocol(MCP)은 AI 에이전트와 언어 모델이 외부 도구
     ```
 
     ```prompt
-    다음 텍스트는 청구서, 계약서, 메모 중 무엇인가요?
+    다음 텍스트는 invoice(청구서), contract(계약서), memo(메모) 중 무엇인가요?
     '2026년 1월에 제공된 서비스에 대한 청구서 B1234. 총 지불 금액: 5,000달러.'
     ```
 
@@ -320,11 +320,11 @@ Model Context Protocol(MCP)은 AI 에이전트와 언어 모델이 외부 도구
 
 ## 다음 단계
 
-프로덕션 시나리오에서는 Flex Consumption 계획을 사용하여 함수 앱을 Azure에 배포하고, **mcp_extension** 시스템 키로 MCP 클라이언트 연결을 인증하며, 각 도구 함수의 자리 표시자 로직을 **DefaultAzureCredential** 및 함수 앱의 관리 ID를 사용하여 Azure AI 서비스를 호출하는 코드로 바꿉니다. 자세한 내용은 [Azure Functions MCP 확장 설명서](/azure/azure-functions/functions-bindings-mcp)를 참조하세요.
+프로덕션 시나리오에서는 Flex Consumption 계획을 사용하여 함수 앱을 Azure에 배포하고, **mcp_extension** 시스템 키로 MCP 클라이언트 연결을 인증하며, 각 도구 함수의 자리 표시자 로직을 **DefaultAzureCredential** 및 함수 앱의 관리 ID를 사용하여 Azure AI 서비스를 호출하는 코드로 바꿉니다. 자세한 내용은 [Azure Functions MCP 확장 설명서](/azure/azure-functions/functions-bindings-mcp)를 참조합니다.
 
 ## 문제 해결
 
-연습을 진행하는 동안 문제가 발생하면 다음 문제 해결 단계를 시도합니다.
+실습을 진행하는 동안 문제가 발생하면 다음 문제 해결 단계를 시도합니다.
 
 **Azure Functions Core Tools가 시작되지 않음**
 - 터미널에서 **func --version**을 실행하여 Azure Functions Core Tools v4 이상이 설치되어 있는지 확인합니다.

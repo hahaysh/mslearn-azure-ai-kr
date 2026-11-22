@@ -9,9 +9,9 @@ lab:
 
 # 로컬 모델 제공 사이드카를 사용하여 AI API 배포
 
-이 연습에서는 Python 채팅 API를 기본 App Service 컨테이너로 배포하고 로컬 모델 서버를 사이드카로 배포합니다. 배포 스크립트는 두 이미지를 Azure Container Registry에서 빌드합니다. 별도의 Flask 클라이언트는 개발 컴퓨터에서 실행되어 공개 채팅 API를 호출합니다. 관리 ID 이미지 가져오기, `localhost` 통신, 공유 임시 볼륨 및 컨테이너별 진단을 구성합니다.
+이 실습에서는 Python 채팅 API를 기본 App Service 컨테이너로 배포하고 로컬 모델 서버를 사이드카로 배포합니다. 배포 스크립트는 두 이미지를 Azure Container Registry에서 빌드합니다. 별도의 Flask 클라이언트는 개발 컴퓨터에서 실행되어 공개 채팅 API를 호출합니다. 관리 ID 이미지 가져오기, `localhost` 통신, 공유 임시 볼륨 및 컨테이너별 진단을 구성합니다.
 
-이 연습에서 수행하는 작업:
+이 실습에서 수행하는 작업:
 
 - 프로젝트 시작 파일 다운로드
 - Azure Container Registry를 배포하고 ACR Tasks를 사용하여 채팅 API 및 모델 서버 이미지 빌드
@@ -21,13 +21,13 @@ lab:
 - 로컬 Flask 클라이언트용 Python 환경 구성
 - 채팅 클라이언트를 실행하고 엔드투엔드 모델 추론 테스트
 
-이 연습을 완료하는 데 약 **30**분이 걸립니다.
+이 실습을 완료하는 데 약 **30**분이 걸립니다.
 
 ## 시작하기 전에
 
-이 연습을 완료하려면 다음이 필요합니다.
+이 실습을 완료하려면 다음이 필요합니다.
 
-- 필요한 Azure 서비스를 프로비전할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
+- 필요한 Azure 서비스를 프로비저닝할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
 - [Visual Studio Code](https://code.visualstudio.com/)를 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나에 설치합니다.
 - 최신 버전의 [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 - [Python 3.12](https://www.python.org/downloads/) 이상
@@ -46,24 +46,24 @@ lab:
 
 1. 압축을 푼 폴더를 Visual Studio Code에서 엽니다.
 
-1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위의 두 값을 필요에 맞게 변경한 다음 저장합니다. **참고:** 스크립트의 다른 내용은 변경하지 마세요.
+1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위의 두 값을 필요에 맞게 변경한 다음 저장합니다. **참고:** 스크립트의 다른 내용은 변경하지 않습니다.
 
 1. Visual Studio Code에서 새 터미널을 엽니다.
 
-1. 다음 명령을 실행하여 Azure에 로그인합니다. 이 명령은 Azure CLI를 인증하고 연습 리소스를 만들 구독을 선택할 수 있게 합니다.
+1. 다음 명령을 실행하여 Azure에 로그인합니다. 이 명령은 Azure CLI를 인증하고 실습 리소스를 만들 구독을 선택할 수 있게 합니다.
 
     ```
     az login
     ```
 
-1. 다음 명령을 실행하여 연습에서 사용하는 Azure 리소스 공급자를 등록합니다. 등록하면 구독에서 Azure Container Registry 및 App Service 리소스를 만들 수 있습니다.
+1. 다음 명령을 실행하여 실습에서 사용하는 Azure 리소스 공급자를 등록합니다. 등록하면 구독에서 Azure Container Registry 및 App Service 리소스를 만들 수 있습니다.
 
     ```
     az provider register --namespace Microsoft.ContainerRegistry
     az provider register --namespace Microsoft.Web
     ```
 
-1. 다음 명령을 실행하여 배포 스크립트를 시작합니다. 스크립트는 필요한 순서로 연습 리소스를 프로비전하는 메뉴를 제공합니다.
+1. 다음 명령을 실행하여 배포 스크립트를 시작합니다. 스크립트는 필요한 순서로 실습 리소스를 프로비저닝하는 메뉴를 제공합니다.
 
     ```
     python azdeploy.py
@@ -83,14 +83,14 @@ lab:
 
 1. Bash에서 리소스 값을 로드하려면 다음 명령을 실행합니다. 이 명령은 *.env*의 값을 내보내어 나머지 Azure CLI 명령과 로컬 클라이언트에서 사용할 수 있게 합니다.
 
-    **Bash**
-    ```bash
-    source .env
-    ```
-
     **PowerShell**
     ```powershell
     . .\.env.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .env
     ```
 
 기본 API는 포트 **8080**, 모델 서버는 포트 **11434**를 사용합니다. 기본 API는 **MODEL_ENDPOINT**를 읽고 **http://localhost:11434**를 통해 사이드카에 추론 요청을 보냅니다. **isMain**을 **true**로 설정한 컨테이너를 정의하고 적용하기 전에는 웹앱이 채팅 API를 제공하지 않습니다.
@@ -119,14 +119,6 @@ lab:
 
 1. 다음 명령을 실행하여 기본 컨테이너와 사이드카 컨테이너 정의를 적용합니다. 이 작업은 공개 채팅 API와 내부 모델 사이드카 간의 런타임 관계를 만들고 최초 컨테이너 가져오기를 시작합니다.
 
-    **Bash**
-    ```bash
-    az webapp sitecontainers create \
-        --name "$APP_NAME" \
-        --resource-group "$RESOURCE_GROUP" \
-        --sitecontainers-spec-file ./sitecontainers-spec.json
-    ```
-
     **PowerShell**
     ```powershell
     az webapp sitecontainers create `
@@ -135,21 +127,29 @@ lab:
         --sitecontainers-spec-file ./sitecontainers-spec.json
     ```
 
-1. 다음 명령을 실행하여 저장된 컨테이너 정의를 확인합니다. App Service가 두 컨테이너를 할당된 역할 및 대상 포트와 함께 저장했는지 확인합니다.
-
     **Bash**
     ```bash
-    az webapp sitecontainers list \
+    az webapp sitecontainers create \
         --name "$APP_NAME" \
         --resource-group "$RESOURCE_GROUP" \
-        --output table
+        --sitecontainers-spec-file ./sitecontainers-spec.json
     ```
+
+1. 다음 명령을 실행하여 저장된 컨테이너 정의를 확인합니다. App Service가 두 컨테이너를 할당된 역할 및 대상 포트와 함께 저장했는지 확인합니다.
 
     **PowerShell**
     ```powershell
     az webapp sitecontainers list `
         --name $env:APP_NAME `
         --resource-group $env:RESOURCE_GROUP `
+        --output table
+    ```
+
+    **Bash**
+    ```bash
+    az webapp sitecontainers list \
+        --name "$APP_NAME" \
+        --resource-group "$RESOURCE_GROUP" \
         --output table
     ```
 
@@ -161,14 +161,6 @@ lab:
 
 1. 다음 명령을 실행하여 모델 서버 로그를 가져옵니다. 컨테이너별 로그를 사용하면 모델 로딩 및 시작 문제를 기본 API 오류와 구분할 수 있습니다.
 
-    **Bash**
-    ```bash
-    az webapp sitecontainers log \
-      --name "$APP_NAME" \
-      --resource-group "$RESOURCE_GROUP" \
-      --container-name model-server
-    ```
-
     **PowerShell**
     ```powershell
     az webapp sitecontainers log `
@@ -177,18 +169,26 @@ lab:
       --container-name model-server
     ```
 
+    **Bash**
+    ```bash
+    az webapp sitecontainers log \
+      --name "$APP_NAME" \
+      --resource-group "$RESOURCE_GROUP" \
+      --container-name model-server
+    ```
+
 1. 로그에 모델이 성공적으로 로드되었다고 표시되고 모델 서버가 포트 **11434**에서 수신 대기하는지 확인합니다.
 
 1. 다음 명령을 실행하여 API 준비 상태 작업을 호출합니다. 기본 API가 공유 네트워크 네임스페이스를 통해 모델 사이드카에 연결할 수 있는지 확인합니다. 응답에는 모델 구성이나 내부 경로를 노출하지 않고 로컬 모델 종속성을 사용할 수 있다고 표시되어야 합니다.
 
-    **Bash**
-    ```bash
-    curl --fail-with-body "${CHAT_API_URL}/health/ready"
-    ```
-
     **PowerShell**
     ```powershell
     Invoke-RestMethod -Uri "$env:CHAT_API_URL/health/ready"
+    ```
+
+    **Bash**
+    ```bash
+    curl --fail-with-body "${CHAT_API_URL}/health/ready"
     ```
 
 ## 공유 볼륨 확인
@@ -197,14 +197,14 @@ lab:
 
 1. 다음 명령을 실행하여 민감하지 않은 모델 매니페스트 필드를 요청합니다. 응답이 성공하면 사이드카가 매니페스트를 기록했고 기본 API가 공유 **/home** 볼륨을 통해 읽었음을 확인할 수 있습니다.
 
-    **Bash**
-    ```bash
-    curl --fail-with-body "${CHAT_API_URL}/model-info"
-    ```
-
     **PowerShell**
     ```powershell
     Invoke-RestMethod -Uri "$env:CHAT_API_URL/model-info"
+    ```
+
+    **Bash**
+    ```bash
+    curl --fail-with-body "${CHAT_API_URL}/model-info"
     ```
 
 1. 응답에 Microsoft Phi-3 Mini 모델, Microsoft ONNX Runtime GenAI, CPU INT4 양자화 및 준비 상태가 표시되는지 확인합니다.
@@ -229,16 +229,16 @@ App Service는 모든 sitecontainer 간에 **/home** 볼륨을 자동으로 공�
 
 1. 다음 명령을 실행하여 Python 환경을 활성화합니다.
 
-    > **참고:** Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서는 PowerShell 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
-
-    **Bash**
-    ```bash
-    source .venv/Scripts/activate
-    ```
+    > **참고:** Windows에서는 PowerShell 명령을 사용하고, Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
 
     **PowerShell**
     ```powershell
     .\.venv\Scripts\Activate.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .venv/bin/activate
     ```
 
 1. 다음 명령을 실행하여 Python 종속성을 설치합니다. 이 명령은 **flask** 및 **requests** 라이브러리를 설치합니다.
@@ -269,7 +269,7 @@ App Service는 모든 sitecontainer 간에 **/home** 볼륨을 자동으로 공�
 
 ## 리소스 정리
 
-연습을 마쳤으므로 불필요한 리소스 사용을 방지하기 위해 만든 클라우드 리소스를 삭제해야 합니다.
+실습을 마쳤으므로 불필요한 리소스 사용을 방지하기 위해 만든 클라우드 리소스를 삭제해야 합니다.
 
 1. VS Code 터미널에서 다음 명령을 실행하여 리소스 그룹과 그룹 내 모든 리소스를 삭제합니다. **\<rg-name>**을 앞서 선택한 이름으로 바꿉니다. 이 명령은 Azure에서 리소스 그룹 삭제를 백그라운드 작업으로 시작합니다.
 
@@ -277,11 +277,11 @@ App Service는 모든 sitecontainer 간에 **/home** 볼륨을 자동으로 공�
     az group delete --name <rg-name> --no-wait --yes
     ```
 
-> **CAUTION:** 리소스 그룹을 삭제하면 그룹에 포함된 모든 리소스가 삭제됩니다. 이 연습 범위에 속하지 않는 기존 리소스가 있는 리소스 그룹을 선택했다면 해당 리소스도 삭제됩니다.
+> **주의:** 리소스 그룹을 삭제하면 그룹에 포함된 모든 리소스가 삭제됩니다. 이 실습 범위에 속하지 않는 기존 리소스가 있는 리소스 그룹을 선택했다면 해당 리소스도 삭제됩니다.
 
 ## 문제 해결
 
-연습을 진행하는 동안 문제가 발생하면 다음 문제 해결 단계를 시도합니다.
+실습을 진행하는 동안 문제가 발생하면 다음 문제 해결 단계를 시도합니다.
 
 **리소스 배포 확인**
 - [Azure portal](https://portal.azure.com)로 이동하여 리소스 그룹을 찾습니다.
@@ -302,19 +302,19 @@ App Service는 모든 sitecontainer 간에 **/home** 볼륨을 자동으로 공�
 - App Service 관리 ID 이미지 가져오기를 사용하려면 레지스트리의 인증-as-ARM 정책을 사용하도록 설정해야 합니다. 옵션 1은 이미지를 빌드하기 전에 이 정책을 확인합니다.
 - 스크립트에서 정책이 비활성화되었다고 보고하면 다음 명령을 실행하여 사용하도록 설정한 다음 옵션 1을 다시 실행합니다.
 
-    **Bash**
-    ```bash
-    az acr config authentication-as-arm update \
-        --registry "$ACR_NAME" \
-        --resource-group "$RESOURCE_GROUP" \
-        --status enabled
-    ```
-
     **PowerShell**
     ```powershell
     az acr config authentication-as-arm update `
         --registry $env:ACR_NAME `
         --resource-group $env:RESOURCE_GROUP `
+        --status enabled
+    ```
+
+    **Bash**
+    ```bash
+    az acr config authentication-as-arm update \
+        --registry "$ACR_NAME" \
+        --resource-group "$RESOURCE_GROUP" \
         --status enabled
     ```
 

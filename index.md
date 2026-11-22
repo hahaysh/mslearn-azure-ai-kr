@@ -10,11 +10,11 @@ layout: home
 
 > **참고**: 실습을 완료하려면 필요한 Azure 리소스를 프로비전할 수 있는 충분한 권한과 할당량이 있는 Azure 구독이 필요합니다. 구독이 없다면 [Azure 계정](https://azure.microsoft.com/free)에 등록할 수 있습니다.
 
-모든 실습에서 사용하는 계정과 소프트웨어는 [실습 요구 사항]({{ site.github.url }}/lab-requirements.html)에서 확인합니다. 각 실습의 **시작하기 전에** 섹션에서도 해당 실습에 필요한 요구 사항을 확인할 수 있습니다.
+모든 실습에서 사용하는 계정과 소프트웨어는 [실습 요구 사항]({{ '/lab-requirements.html' | relative_url }})에서 확인합니다. 각 실습의 **시작하기 전에** 섹션에서도 해당 실습에 필요한 요구 사항을 확인할 수 있습니다.
 
 ## 주제 영역
 
-{% assign exercises = site.pages | where_exp:"page", "page.url contains '/Instructions-kr/'" %}
+{% assign exercises = site.pages | where_exp:"page", "page.url contains '/Instructions-kr/'" | where_exp:"page", "page.lab.title" | sort: "url" %}
 {% assign grouped_exercises = exercises | group_by: "lab.topic" %}
 
 <ul>
@@ -28,7 +28,7 @@ layout: home
 ## <a id="{{ group.name | slugify }}"></a>{{ group.name }}
 
 {% for activity in group.items %}
-[{{ activity.lab.title }}]({{ site.github.url }}{{ activity.url }}) <br/> {{ activity.lab.description }} <br/> <span class="meta-grey">수준: {{activity.lab.level}} &nbsp; &nbsp; 소요 시간: {{activity.lab.duration}}분</span>
+[{{ activity.lab.title }}]({{ activity.url | relative_url }}) <br/> {{ activity.lab.description }} <br/> <span class="meta-grey">수준: {{activity.lab.level}} &nbsp; &nbsp; 소요 시간: {{activity.lab.duration}}분</span>
 
 ---
 

@@ -16,6 +16,65 @@ IMAGE = re.compile(r"!\[[^\]]*]\(([^)]+)\)")
 LINK = re.compile(r"(?<!!)\[[^\]]+]\(([^)]+)\)")
 INLINE_CODE = re.compile(r"(?<!`)`([^`\n]+)`(?!`)")
 KOREAN = re.compile(r"[가-힣]")
+SHELL_PAIR = re.compile(
+    r"(?P<bash>^[ \t]*\*\*Bash\*\*[ \t]*\r?\n"
+    r"[ \t]*```bash[ \t]*\r?\n"
+    r"(?:(?![ \t]*(?:```|\*\*(?:Bash|PowerShell)\*\*)).*\n)*"
+    r"[ \t]*```[ \t]*\r?\n)"
+    r"(?P<gap>(?:[ \t]*\r?\n)*)"
+    r"(?P<powershell>[ \t]*\*\*PowerShell\*\*[ \t]*\r?\n"
+    r"[ \t]*```powershell[ \t]*\r?\n"
+    r"(?:(?![ \t]*(?:```|\*\*(?:Bash|PowerShell)\*\*)).*\n)*"
+    r"[ \t]*```[ \t]*\r?\n)",
+    re.MULTILINE,
+)
+SHELL_BULLET_PAIR = re.compile(
+    r"(?P<bash>^[ \t]*-[ \t]+\*\*Bash(?: \([^()\r\n]*\))?:\*\*[^\r\n]*\r?\n)"
+    r"(?P<powershell>[ \t]*-[ \t]+\*\*PowerShell(?: \([^()\r\n]*\))?:\*\*[^\r\n]*\r?\n)",
+    re.MULTILINE,
+)
+COMMENTS = re.compile(
+    r"(\{%\s*comment\s*%\}.*?\{%\s*endcomment\s*%\}|<!--.*?-->)", re.DOTALL
+)
+
+
+def reorder_shell_pairs(text: str, pattern: re.Pattern[str]) -> str:
+    spans: list[tuple[int, int]] = []
+    offset = 0
+    start = 0
+    closing: re.Pattern[str] | None = None
+    for line in text.splitlines(keepends=True):
+        if closing is not None:
+            if closing.match(line.rstrip("\r\n")):
+                spans.append((start, offset + len(line)))
+                closing = None
+        else:
+            opening = FENCE_START.match(line.rstrip("\r\n"))
+            if opening:
+                start = offset
+                closing = re.compile(r"^\s*" + re.escape(opening[1]) + r"\s*$")
+        offset += len(line)
+    if closing is not None:
+        spans.append((start, len(text)))
+
+    def replace(match: re.Match[str]) -> str:
+        if any(start <= match.start() < end for start, end in spans):
+            return match[0]
+        return (
+            match["powershell"]
+            + (match.groupdict().get("gap") or "")
+            + match["bash"]
+        )
+
+    return pattern.sub(replace, text)
+
+
+def powershell_first(text: str) -> str:
+    parts = COMMENTS.split(text)
+    for index in range(0, len(parts), 2):
+        parts[index] = reorder_shell_pairs(parts[index], SHELL_PAIR)
+        parts[index] = reorder_shell_pairs(parts[index], SHELL_BULLET_PAIR)
+    return "".join(parts)
 
 
 def parse_args() -> argparse.Namespace:
@@ -32,6 +91,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--readme",
         help="Translation README path; defaults to <target>/README.md",
+    )
+    parser.add_argument(
+        "--powershell-first",
+        action="store_true",
+        help="Require PowerShell first in adjacent shell pairs; preserve block contents",
     )
     return parser.parse_args()
 
@@ -137,7 +201,12 @@ def markdown_files(root: Path, *, source: bool) -> dict[Path, Path]:
 
 
 def validate(
-    repo: Path, source_dir: Path, target_dir: Path, readme: Path
+    repo: Path,
+    source_dir: Path,
+    target_dir: Path,
+    readme: Path,
+    *,
+    prefer_powershell: bool = False,
 ) -> list[str]:
     errors: list[str] = []
 
@@ -170,6 +239,9 @@ def validate(
         source = read_text(source_file)
         target = read_text(target_file)
         label = relative_path.as_posix()
+        validation_source = powershell_first(source) if prefer_powershell else source
+        if prefer_powershell and powershell_first(target) != target:
+            errors.append(f"{label}: an adjacent shell pair is not PowerShell first")
 
         if not source.startswith("---") or not target.startswith("---"):
             errors.append(f"{label}: missing YAML front matter")
@@ -189,7 +261,7 @@ def validate(
             errors.append(f"{label}: IMPORTANT callout count differs")
 
         try:
-            source_blocks = fenced_blocks(source)
+            source_blocks = fenced_blocks(validation_source)
             target_blocks = fenced_blocks(target)
         except ValueError as error:
             errors.append(f"{label}: {error}")
@@ -198,7 +270,7 @@ def validate(
         if not is_subsequence(source_blocks, target_blocks):
             errors.append(f"{label}: an original fenced block changed or moved")
 
-        source_inline = INLINE_CODE.findall(outside_fences(source))
+        source_inline = INLINE_CODE.findall(outside_fences(validation_source))
         target_inline = INLINE_CODE.findall(outside_fences(target))
         if not is_subsequence(source_inline, target_inline):
             errors.append(f"{label}: an original inline-code value changed or moved")
@@ -254,7 +326,13 @@ def main() -> int:
         else target_dir / "README.md"
     )
 
-    errors = validate(repo, source_dir, target_dir, readme)
+    errors = validate(
+        repo,
+        source_dir,
+        target_dir,
+        readme,
+        prefer_powershell=args.powershell_first,
+    )
     if errors:
         print("Translation validation failed:")
         for error in errors:

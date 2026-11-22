@@ -14,32 +14,32 @@ lab:
 
 Kusto 쿼리 언어(KQL)는 Application Insights에서 로그 데이터를 분석하는 데 사용하는 쿼리 언어입니다. KQL 쿼리를 사용하면 요청, 종속성 및 예외와 같은 원격 분석 테이블을 필터링하고 집계하며 조인하여 애플리케이션 상태와 성능을 진단할 수 있습니다. Application Insights의 로그(Logs) 블레이드는 자동 완성, 시각적 결과 및 시간 범위 제어 기능을 갖춘 대화형 쿼리 편집기를 제공하므로 원격 분석 조사에 주로 사용됩니다. Azure CLI로 만드는 예약된 쿼리 경고 규칙과 KQL을 함께 사용하면 실패율이나 대기 시간이 허용 가능한 임계값을 초과할 때 팀에 알리는 사전 모니터링을 구현할 수 있습니다.
 
-이 연습에서는 Application Insights 리소스를 배포하고 OpenTelemetry를 사용하여 샘플 요청, 종속성 및 예외 원격 분석을 생성하는 Python 스크립트를 실행한 다음 Azure portal의 로그 블레이드에서 KQL 쿼리를 작성하여 애플리케이션 상태를 조사합니다. requests 테이블을 쿼리하여 실패를 식별하고, 예외와 요청을 조인하여 오류를 연관시키며, 백분위수 계산으로 종속성 대기 시간을 분석하고, Azure CLI를 사용하여 작업 그룹과 로그 검색 경고 규칙을 만듭니다.
+이 실습에서는 Application Insights 리소스를 배포하고 OpenTelemetry를 사용하여 샘플 요청, 종속성 및 예외 원격 분석을 생성하는 Python 스크립트를 실행한 다음 Azure portal의 로그 블레이드에서 KQL 쿼리를 작성하여 애플리케이션 상태를 조사합니다. requests 테이블을 쿼리하여 실패를 식별하고, 예외와 요청을 조인하여 오류를 연관시키며, 백분위수 계산으로 종속성 대기 시간을 분석하고, Azure CLI를 사용하여 작업 그룹과 로그 검색 경고 규칙을 만듭니다.
 
-이 연습에서 수행하는 작업은 다음과 같습니다.
+이 실습에서 수행하는 작업은 다음과 같습니다.
 
-- 프로젝트 스타터 파일 다운로드
+- 프로젝트 시작 파일 다운로드
 - Application Insights 리소스 만들기
 - 원격 분석 생성기를 실행하여 샘플 데이터 만들기
 - Azure portal에서 KQL로 원격 분석 쿼리
 - Azure CLI로 작업 그룹 및 경고 규칙 만들기
 
-이 연습을 완료하는 데 약 **20**분이 걸립니다.
+이 실습을 완료하는 데 약 **20**분이 걸립니다.
 
 ## 시작하기 전에
 
-연습을 완료하려면 다음이 필요합니다.
+실습을 완료하려면 다음이 필요합니다.
 
-- 필요한 Azure 서비스를 프로비전할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
+- 필요한 Azure 서비스를 프로비저닝할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
 - [Visual Studio Code](https://code.visualstudio.com/)를 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나에 설치합니다.
 - [Python 3.12](https://www.python.org/downloads/) 이상
 - 최신 버전의 [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 
-## 프로젝트 스타터 파일 다운로드 및 Application Insights 배포
+## 프로젝트 시작 파일 다운로드 및 Application Insights 배포
 
-이 섹션에서는 앱의 스타터 파일을 다운로드하고 스크립트를 사용하여 구독에 Application Insights 리소스를 배포합니다.
+이 섹션에서는 앱의 시작 파일을 다운로드하고 스크립트를 사용하여 구독에 Application Insights 리소스를 배포합니다.
 
-1. 브라우저를 열고 다음 URL을 입력하여 스타터 파일을 다운로드합니다. 파일은 기본 다운로드 위치에 저장됩니다.
+1. 브라우저를 열고 다음 URL을 입력하여 시작 파일을 다운로드합니다. 파일은 기본 다운로드 위치에 저장됩니다.
 
     ```
     https://github.com/MicrosoftLearning/mslearn-azure-ai/raw/main/downloads/python/analyze-logs-python.zip
@@ -49,7 +49,7 @@ Kusto 쿼리 언어(KQL)는 Application Insights에서 로그 데이터를 분�
 
 1. Visual Studio Code(VS Code)를 시작하고 메뉴에서 **파일(File) > 폴더 열기(Open Folder)...**를 선택한 다음 프로젝트 파일이 있는 폴더를 선택합니다.
 
-1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위에 있는 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 부분은 변경하지 마세요.
+1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위에 있는 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 부분은 변경하지 않습니다.
 
     ```
     "<your-resource-group-name>" # Resource Group name
@@ -58,20 +58,20 @@ Kusto 쿼리 언어(KQL)는 Application Insights에서 로그 데이터를 분�
 
 1. 메뉴 모음에서 **터미널(Terminal) > 새 터미널(New Terminal)**을 선택하여 VS Code에서 터미널 창을 엽니다.
 
-1. 다음 명령을 실행하여 Azure 계정에 로그인합니다. 프롬프트에 따라 연습에 사용할 Azure 계정과 구독을 선택합니다.
+1. 다음 명령을 실행하여 Azure 계정에 로그인합니다. 프롬프트에 따라 실습에 사용할 Azure 계정과 구독을 선택합니다.
 
     ```
     az login
     ```
 
-1. 다음 명령을 실행하여 구독에 연습에 필요한 리소스 공급자가 등록되었는지 확인합니다.
+1. 다음 명령을 실행하여 구독에 실습에 필요한 리소스 공급자가 등록되었는지 확인합니다.
 
     ```
     az provider register --namespace Microsoft.Insights
     az provider register --namespace Microsoft.OperationalInsights
     ```
 
-1. 다음 명령을 실행하여 이 연습에서 사용하는 Azure CLI 확장을 추가합니다. **application-insights** 확장은 배포 스크립트에서 Application Insights 리소스를 만들고 관리하는 데 사용하는 명령을 제공합니다. **scheduled-query** 확장은 뒤에서 로그 검색 경고 규칙을 만드는 데 사용하는 명령을 제공합니다.
+1. 다음 명령을 실행하여 이 실습에서 사용하는 Azure CLI 확장을 추가합니다. **application-insights** 확장은 배포 스크립트에서 Application Insights 리소스를 만들고 관리하는 데 사용하는 명령을 제공합니다. **scheduled-query** 확장은 뒤에서 로그 검색 경고 규칙을 만드는 데 사용하는 명령을 제공합니다.
 
     ```
     az extension add --name application-insights
@@ -90,7 +90,7 @@ Kusto 쿼리 언어(KQL)는 Application Insights에서 로그 데이터를 분�
 
 1. **2**를 입력하여 **2. Assign role** 옵션을 실행합니다. 이 옵션은 앱에서 Microsoft Entra 인증을 사용하여 Application Insights에 원격 분석을 게시할 수 있도록 계정에 Monitoring Metrics Publisher 역할을 할당합니다.
 
-1. **3**을 입력하여 **3. Check deployment status** 옵션을 실행합니다. 계속하기 전에 Application Insights 리소스가 **Succeeded**로 표시되고 역할이 할당되었는지 확인합니다. 리소스 프로비전이 아직 진행 중이면 잠시 기다렸다가 다시 확인합니다.
+1. **3**을 입력하여 **3. Check deployment status** 옵션을 실행합니다. 계속하기 전에 Application Insights 리소스가 **Succeeded**로 표시되고 역할이 할당되었는지 확인합니다. 리소스 프로비저닝이 아직 진행 중이면 잠시 기다렸다가 다시 확인합니다.
 
 1. **4**를 입력하여 **4. Retrieve connection info** 옵션을 실행합니다. 이 옵션은 Application Insights 연결 문자열, 리소스 그룹 이름, Application Insights 이름, 앱과 CLI 명령에 필요한 리소스 ID가 포함된 환경 변수 파일을 만듭니다.
 
@@ -98,14 +98,14 @@ Kusto 쿼리 언어(KQL)는 Application Insights에서 로그 데이터를 분�
 
 1. 이전 단계에서 만든 파일의 환경 변수를 터미널 세션에 로드하는 적절한 명령을 실행합니다.
 
-    **Bash**
-    ```bash
-    source .env
-    ```
-
     **PowerShell**
     ```powershell
     . .\.env.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .env
     ```
 
     >**참고:** 터미널을 열어 둡니다. 터미널을 닫고 새 터미널을 열면 환경 변수를 다시 로드하기 위해 이 명령을 다시 실행해야 합니다.
@@ -126,16 +126,16 @@ Kusto 쿼리 언어(KQL)는 Application Insights에서 로그 데이터를 분�
     python -m venv .venv
     ```
 
-1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서는 PowerShell 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
-
-    **Bash**
-    ```bash
-    source .venv/Scripts/activate
-    ```
+1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Windows에서는 PowerShell 명령을 사용하고, Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
 
     **PowerShell**
     ```powershell
     .\.venv\Scripts\Activate.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .venv/bin/activate
     ```
 
 1. 다음 명령을 실행하여 종속성을 설치합니다.
@@ -234,17 +234,6 @@ Kusto 쿼리 언어(KQL)는 Application Insights에서 로그 데이터를 분�
 
 1. VS Code 터미널에서 다음 명령을 실행하여 이메일 알림이 포함된 작업 그룹을 만듭니다. **ALERT_EMAIL** 변수는 배포 스크립트의 **Retrieve connection info** 옵션을 실행할 때 Azure 계정에서 가져온 값으로 채워집니다.
 
-    **Bash**
-    ```bash
-    ACTION_GROUP_ID=$(az monitor action-group create \
-        --resource-group $RESOURCE_GROUP \
-        --name pipeline-alerts-ag \
-        --short-name PipeAlert \
-        --action email oncall-email $ALERT_EMAIL \
-        --query id \
-        --output tsv)
-    ```
-
     **PowerShell**
     ```powershell
     $ACTION_GROUP_ID = az monitor action-group create `
@@ -256,24 +245,20 @@ Kusto 쿼리 언어(KQL)는 Application Insights에서 로그 데이터를 분�
         --output tsv
     ```
 
+    **Bash**
+    ```bash
+    ACTION_GROUP_ID=$(az monitor action-group create \
+        --resource-group $RESOURCE_GROUP \
+        --name pipeline-alerts-ag \
+        --short-name PipeAlert \
+        --action email oncall-email $ALERT_EMAIL \
+        --query id \
+        --output tsv)
+    ```
+
     이 명령은 **pipeline-alerts-ag**라는 작업 그룹을 만들고 트리거 시 이메일 알림을 보낸 다음 해당 리소스 ID를 **ACTION_GROUP_ID** 변수에 저장합니다.
 
 1. 다음 명령을 실행하여 실패한 요청을 Application Insights 리소스에서 모니터링하는 로그 검색 경고 규칙을 만듭니다. 규칙은 5분 동안 쿼리를 평가하며 실패한 요청이 10개를 초과하면 경고를 발생시킵니다.
-
-    **Bash**
-    ```bash
-    az monitor scheduled-query create \
-        --resource-group $RESOURCE_GROUP \
-        --name high-failure-rate-alert \
-        --scopes $APPINSIGHTS_RESOURCE_ID \
-        --action-groups $ACTION_GROUP_ID \
-        --condition "count 'FailedRequests' > 10" \
-        --condition-query FailedRequests="requests | where success == false" \
-        --evaluation-frequency 5m \
-        --window-size 5m \
-        --severity 1 \
-        --description "Alert when more than 10 requests fail in a 5-minute window"
-    ```
 
     **PowerShell**
     ```powershell
@@ -290,18 +275,24 @@ Kusto 쿼리 언어(KQL)는 Application Insights에서 로그 데이터를 분�
         --description "Alert when more than 10 requests fail in a 5-minute window"
     ```
 
+    **Bash**
+    ```bash
+    az monitor scheduled-query create \
+        --resource-group $RESOURCE_GROUP \
+        --name high-failure-rate-alert \
+        --scopes $APPINSIGHTS_RESOURCE_ID \
+        --action-groups $ACTION_GROUP_ID \
+        --condition "count 'FailedRequests' > 10" \
+        --condition-query FailedRequests="requests | where success == false" \
+        --evaluation-frequency 5m \
+        --window-size 5m \
+        --severity 1 \
+        --description "Alert when more than 10 requests fail in a 5-minute window"
+    ```
+
     심각도는 1(Error)로 설정하여 중대한 문제이지만 서비스 중단 수준은 아님을 나타냅니다. 경고가 발생하면 작업 그룹이 트리거되어 이메일을 보냅니다.
 
 1. 다음 명령을 실행하여 경고 규칙이 만들어져 있고 사용하도록 설정되었는지 확인합니다.
-
-    **Bash**
-    ```bash
-    az monitor scheduled-query show \
-        --resource-group $RESOURCE_GROUP \
-        --name high-failure-rate-alert \
-        --query "{Name:name, Severity:severity, Enabled:enabled, Window:windowSize, Frequency:evaluationFrequency, Threshold:condition.failingPeriods}" \
-        --output table
-    ```
 
     **PowerShell**
     ```powershell
@@ -312,16 +303,18 @@ Kusto 쿼리 언어(KQL)는 Application Insights에서 로그 데이터를 분�
         --output table
     ```
 
+    **Bash**
+    ```bash
+    az monitor scheduled-query show \
+        --resource-group $RESOURCE_GROUP \
+        --name high-failure-rate-alert \
+        --query "{Name:name, Severity:severity, Enabled:enabled, Window:windowSize, Frequency:evaluationFrequency, Threshold:condition.failingPeriods}" \
+        --output table
+    ```
+
     **Enabled** 열에 **True**가 표시되고 심각도, 기간 및 빈도 값이 이전 단계에서 지정한 값과 일치하는지 확인합니다.
 
 1. 다음 명령을 실행하여 리소스 그룹의 예약된 쿼리 경고 규칙을 모두 나열합니다.
-
-    **Bash**
-    ```bash
-    az monitor scheduled-query list \
-        --resource-group $RESOURCE_GROUP \
-        --output table
-    ```
 
     **PowerShell**
     ```powershell
@@ -330,27 +323,34 @@ Kusto 쿼리 언어(KQL)는 Application Insights에서 로그 데이터를 분�
         --output table
     ```
 
+    **Bash**
+    ```bash
+    az monitor scheduled-query list \
+        --resource-group $RESOURCE_GROUP \
+        --output table
+    ```
+
     **high-failure-rate-alert**라는 규칙 하나가 표시되어야 합니다. 실패한 요청을 포함한 원격 분석을 이미 생성했으므로 규칙은 5분 주기로 즉시 평가를 시작합니다. 기간 내 실패한 요청 수가 임계값을 초과하면 Azure Monitor가 경고를 발생시키고 작업 그룹이 지정한 이메일 주소로 알림을 보냅니다.
 
 ## 리소스 정리
 
-연습을 완료했으므로 불필요한 리소스 사용을 방지하기 위해 만든 클라우드 리소스를 삭제해야 합니다.
+실습을 완료했으므로 불필요한 리소스 사용을 방지하기 위해 만든 클라우드 리소스를 삭제해야 합니다.
 
-1. VS Code 터미널에서 다음 명령을 실행하여 리소스 그룹과 그룹 내 모든 리소스를 삭제합니다. **<rg-name>**을 연습 앞부분에서 선택한 이름으로 바꿉니다. 이 명령은 Azure에서 리소스 그룹을 삭제하는 백그라운드 작업을 시작합니다.
+1. VS Code 터미널에서 다음 명령을 실행하여 리소스 그룹과 그룹 내 모든 리소스를 삭제합니다. **<rg-name>**을 실습 앞부분에서 선택한 이름으로 바꿉니다. 이 명령은 Azure에서 리소스 그룹을 삭제하는 백그라운드 작업을 시작합니다.
 
     ```
     az group delete --name <rg-name> --no-wait --yes
     ```
 
-> **주의:** 리소스 그룹을 삭제하면 그 안에 포함된 모든 리소스가 삭제됩니다. 이 연습을 위해 기존 리소스 그룹을 선택한 경우 이 연습 범위를 벗어나는 기존 리소스도 삭제됩니다.
+> **주의:** 리소스 그룹을 삭제하면 그 안에 포함된 모든 리소스가 삭제됩니다. 이 실습을 위해 기존 리소스 그룹을 선택한 경우 이 실습 범위를 벗어나는 기존 리소스도 삭제됩니다.
 
 ## 문제 해결
 
-이 연습을 완료하는 동안 문제가 발생하면 다음 문제 해결 단계를 시도합니다.
+이 실습을 완료하는 동안 문제가 발생하면 다음 문제 해결 단계를 시도합니다.
 
 **Application Insights 배포 확인**
 - [Azure portal](https://portal.azure.com)로 이동하여 리소스 그룹을 찾습니다.
-- Application Insights 리소스의 **프로비전 상태(Provisioning State)**가 **Succeeded**인지 확인합니다.
+- Application Insights 리소스의 **프로비저닝 상태(Provisioning State)**가 **Succeeded**인지 확인합니다.
 
 **연결 문자열 확인**
 - 배포 스크립트의 **Check deployment status** 옵션을 실행하여 리소스가 성공적으로 만들어졌는지 확인합니다.

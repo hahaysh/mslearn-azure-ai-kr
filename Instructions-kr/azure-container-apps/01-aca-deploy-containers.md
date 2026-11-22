@@ -31,7 +31,7 @@ lab:
 
 실습을 완료하려면 다음이 필요합니다.
 
-- 필요한 Azure 서비스를 프로비전할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
+- 필요한 Azure 서비스를 프로비저닝할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
 - [Visual Studio Code](https://code.visualstudio.com/)를 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나에 설치합니다.
 - 최신 버전의 [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 - [Python 3.12](https://www.python.org/downloads/) 이상
@@ -50,7 +50,7 @@ lab:
 
 1. Visual Studio Code(VS Code)를 시작하고 메뉴에서 **파일(File) > 폴더 열기(Open Folder)...**를 선택한 다음 프로젝트 파일이 있는 폴더를 선택합니다.
 
-1. *azdeploy.py* 배포 스크립트를 열고 스크립트 상단의 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 항목은 변경하지 마세요.
+1. *azdeploy.py* 배포 스크립트를 열고 스크립트 상단의 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 항목은 변경하지 않습니다.
 
     ```
     "<your-resource-group-name>" # Resource Group name
@@ -100,14 +100,14 @@ lab:
 
 1. 이전 단계에서 만든 파일의 환경 변수를 터미널 세션에 로드하는 적절한 명령을 실행합니다.
 
-    **Bash**
-    ```bash
-    source .env
-    ```
-
     **PowerShell**
     ```powershell
     . .\.env.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .env
     ```
 
     >**참고:** 터미널을 열어 둡니다. 터미널을 닫고 새 터미널을 열면 환경 변수를 다시 만드는 명령을 실행해야 할 수 있습니다.
@@ -194,14 +194,6 @@ lab:
 
 1. 다음 명령을 실행하여 앱 FQDN을 가져와 변수에 저장합니다.
 
-    **Bash**
-    ```bash
-    FQDN=$(az containerapp show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
-        --query properties.configuration.ingress.fqdn -o tsv)
-
-    echo "$FQDN"
-    ```
-
     **PowerShell**
     ```powershell
     $FQDN = az containerapp show -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP `
@@ -210,38 +202,39 @@ lab:
     Write-Output $FQDN
     ```
 
-1. 다음 명령을 실행하여 상태 엔드포인트를 호출합니다. 명령은 **{"status": "healthy"}**를 반환해야 합니다.
-
     **Bash**
     ```bash
-    curl -s "https://$FQDN/health"
+    FQDN=$(az containerapp show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
+        --query properties.configuration.ingress.fqdn -o tsv)
+
+    echo "$FQDN"
     ```
+
+1. 다음 명령을 실행하여 상태 엔드포인트를 호출합니다. 명령은 **{"status": "healthy"}**를 반환해야 합니다.
 
     **PowerShell**
     ```powershell
     Invoke-RestMethod -Uri "https://$FQDN/health"
     ```
 
-1. 다음 명령을 실행하여 루트 엔드포인트를 호출하고 비밀이 구성되었는지 확인합니다. 엔드포인트는 구성된 모델 이름과 API 키 비밀의 구성 여부를 비롯한 앱 정보를 JSON으로 반환합니다.
-
     **Bash**
     ```bash
-    curl -s "https://$FQDN/"
+    curl -s "https://$FQDN/health"
     ```
+
+1. 다음 명령을 실행하여 루트 엔드포인트를 호출하고 비밀이 구성되었는지 확인합니다. 엔드포인트는 구성된 모델 이름과 API 키 비밀의 구성 여부를 비롯한 앱 정보를 JSON으로 반환합니다.
 
     **PowerShell**
     ```powershell
     Invoke-RestMethod -Uri "https://$FQDN/"
     ```
 
-1. 다음 명령을 실행하여 문서 처리 엔드포인트를 테스트합니다. 이 명령은 *document.txt* 파일을 엔드포인트로 보냅니다. 작업은 모의 데이터 분석 정보가 포함된 JSON을 반환합니다.
-
     **Bash**
     ```bash
-    curl -s -X POST "https://$FQDN/process" \
-        -H "Content-Type: text/plain" \
-        -d @document.txt
+    curl -s "https://$FQDN/"
     ```
+
+1. 다음 명령을 실행하여 문서 처리 엔드포인트를 테스트합니다. 이 명령은 *document.txt* 파일을 엔드포인트로 보냅니다. 작업은 모의 데이터 분석 정보가 포함된 JSON을 반환합니다.
 
     **PowerShell**
     ```powershell
@@ -249,6 +242,13 @@ lab:
         -Method Post `
         -ContentType "text/plain" `
         -Body (Get-Content -Raw document.txt)
+    ```
+
+    **Bash**
+    ```bash
+    curl -s -X POST "https://$FQDN/process" \
+        -H "Content-Type: text/plain" \
+        -d @document.txt
     ```
 
 1. 다음 명령을 실행하여 시작 및 런타임 신호를 확인하는 로그를 검토합니다. 이 명령은 최근 콘솔 출력만 표시합니다. 기록 로그 및 고급 문제 해결 데이터는 Container Apps 환경과 연결된 Log Analytics 작업 영역에 유지됩니다.
@@ -302,32 +302,32 @@ lab:
 - 배포 스크립트는 자세한 **az acr build** 출력을 표시하지 않습니다. 실패를 해결하려면 가장 최근 ACR Task 실행의 상태와 로그를 확인합니다.
 - *api* 폴더가 있는 프로젝트 루트 디렉터리에서 배포 스크립트를 실행하는지 확인합니다.
 - 최근 ACR Task 실행을 나열합니다.
-    - **Bash:** **az acr task list-runs --registry $ACR_NAME --output table**
     - **PowerShell:** **az acr task list-runs --registry $env:ACR_NAME --output table**
+    - **Bash:** **az acr task list-runs --registry $ACR_NAME --output table**
 - 특정 실행의 로그를 확인합니다(앞의 명령에서 가져온 값으로 **<run-id>**를 바꿉니다).
-    - **Bash:** **az acr task logs --registry $ACR_NAME --run-id \<run-id>**
     - **PowerShell:** **az acr task logs --registry $env:ACR_NAME --run-id \<run-id>**
+    - **Bash:** **az acr task logs --registry $ACR_NAME --run-id \<run-id>**
 
 **컨테이너 가져오기 실패(ImagePullBackOff / unauthorized / 403) 문제 해결**
 
 - 컨테이너 앱에서 시스템 할당 관리 ID가 사용하도록 설정되었는지 확인합니다.
-    - **Bash:** **az containerapp identity show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP**
     - **PowerShell:** **az containerapp identity show -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP**
+    - **Bash:** **az containerapp identity show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP**
 - 컨테이너 앱에 레지스트리 범위의 **AcrPull** 역할 할당이 있는지 확인합니다. 역할 할당이 전파되는 데 생성 후 1~2분 정도 걸릴 수 있습니다.
 
 **컨테이너 시작 및 애플리케이션 오류 문제 해결**
 
 - 시작 문제를 진단하려면 컨테이너 로그를 스트리밍합니다.
-    - **Bash:** **az containerapp logs show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP --follow**
     - **PowerShell:** **az containerapp logs show -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP --follow**
+    - **Bash:** **az containerapp logs show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP --follow**
 - 배포 직후 앱에서 502/503을 반환하면 1분 정도 기다린 후 다시 시도합니다. Container Apps가 컨테이너를 가져와 시작하는 동안 첫 시작에 시간이 더 걸릴 수 있습니다.
 - 프로비저닝 오류가 있는지 리비전 상태를 확인합니다.
-    - **Bash:** **az containerapp revision list -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP -o table**
     - **PowerShell:** **az containerapp revision list -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP -o table**
+    - **Bash:** **az containerapp revision list -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP -o table**
 
 **비밀 구성 문제 해결**
 
 - 비밀이 만들어졌는지 확인합니다.
-    - **Bash:** **az containerapp secret list -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP -o table**
     - **PowerShell:** **az containerapp secret list -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP -o table**
+    - **Bash:** **az containerapp secret list -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP -o table**
 - 루트 엔드포인트(**/**)를 호출하여 환경 변수가 비밀을 올바르게 참조하는지 확인합니다. 이 엔드포인트는 API 키가 구성되었는지 보여 줍니다.

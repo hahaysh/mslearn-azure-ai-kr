@@ -2,7 +2,7 @@
 lab:
   topic: Azure Container Apps
   title: 실패한 배포 진단 및 수정
-  description: 누락된 환경 변수, 잘못 구성된 수신, Log Analytics를 사용한 기록 로그 쿼리를 진단하여 Azure Container Apps 문제를 해결하는 방법을 알아봅니다.
+    description: 환경 변수 누락과 인그레스 구성 오류를 진단하고 Log Analytics로 과거 로그를 조회하여 Azure Container Apps 문제를 해결하는 방법을 알아봅니다.
   level: 300
   duration: 30
   islab: true
@@ -30,7 +30,7 @@ lab:
 
 실습을 완료하려면 다음이 필요합니다.
 
-- 필요한 Azure 서비스를 프로비전할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
+- 필요한 Azure 서비스를 프로비저닝할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
 - [Visual Studio Code](https://code.visualstudio.com/)를 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나에 설치합니다.
 - 최신 버전의 [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 - [Python 3.12](https://www.python.org/downloads/) 이상
@@ -49,7 +49,7 @@ lab:
 
 1. Visual Studio Code(VS Code)를 시작하고 메뉴에서 **파일(File) > 폴더 열기(Open Folder)...**를 선택한 다음 프로젝트 파일이 있는 폴더를 선택합니다.
 
-1. *azdeploy.py* 배포 스크립트를 열고 스크립트 상단의 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 항목은 변경하지 마세요.
+1. *azdeploy.py* 배포 스크립트를 열고 스크립트 상단의 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 항목은 변경하지 않습니다.
 
     ```
     "<your-resource-group-name>" # Resource Group name
@@ -101,27 +101,19 @@ lab:
 
 1. 이전 단계에서 만든 파일의 환경 변수를 터미널 세션에 로드하는 적절한 명령을 실행합니다.
 
-    **Bash**
-    ```bash
-    source .env
-    ```
-
     **PowerShell**
     ```powershell
     . .\.env.ps1
     ```
 
+    **Bash**
+    ```bash
+    source .env
+    ```
+
     >**참고:** 터미널을 열어 둡니다. 터미널을 닫고 새 터미널을 열면 환경 변수를 다시 만드는 명령을 실행해야 할 수 있습니다.
 
 1. 다음 명령을 실행하여 앱 FQDN을 가져와 변수에 저장합니다.
-
-    **Bash**
-    ```bash
-    FQDN=$(az containerapp show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
-        --query properties.configuration.ingress.fqdn -o tsv)
-
-    echo "$FQDN"
-    ```
 
     **PowerShell**
     ```powershell
@@ -131,16 +123,24 @@ lab:
     Write-Output $FQDN
     ```
 
-1. 다음 명령을 실행하여 기본 엔드포인트를 호출하고 앱이 실행 중인지 확인합니다. 명령은 JSON을 반환해야 합니다. **model.name** 필드를 확인하면 **gpt-5.4-mini**로 설정되어 있어야 합니다.
-
     **Bash**
     ```bash
-    curl -s "https://$FQDN/"
+    FQDN=$(az containerapp show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
+        --query properties.configuration.ingress.fqdn -o tsv)
+
+    echo "$FQDN"
     ```
+
+1. 다음 명령을 실행하여 기본 엔드포인트를 호출하고 앱이 실행 중인지 확인합니다. 명령은 JSON을 반환해야 합니다. **model.name** 필드를 확인하면 **gpt-5.4-mini**로 설정되어 있어야 합니다.
 
     **PowerShell**
     ```powershell
     Invoke-RestMethod -Uri "https://$FQDN/"
+    ```
+
+    **Bash**
+    ```bash
+    curl -s "https://$FQDN/"
     ```
 
 ## 누락된 환경 변수 진단
@@ -149,28 +149,28 @@ lab:
 
 1. 다음 명령을 실행하여 컨테이너 앱에서 `MODEL_NAME` 환경 변수를 제거합니다.
 
-    **Bash**
-    ```bash
-    az containerapp update -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
-        --remove-env-vars MODEL_NAME
-    ```
-
     **PowerShell**
     ```powershell
     az containerapp update -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP `
         --remove-env-vars MODEL_NAME
     ```
 
-1. 다음 명령을 실행하여 리비전을 나열하고 새 리비전이 만들어졌는지 확인합니다. 접미사 번호가 더 큰 새 리비전(예: **ai-api--0000002**)과 모든 트래픽을 받음을 나타내는 **TrafficWeight** 값 **100**을 찾습니다.
-
     **Bash**
     ```bash
-    az containerapp revision list -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP -o table
+    az containerapp update -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
+        --remove-env-vars MODEL_NAME
     ```
+
+1. 다음 명령을 실행하여 리비전을 나열하고 새 리비전이 만들어졌는지 확인합니다. 접미사 번호가 더 큰 새 리비전(예: **ai-api--0000002**)과 모든 트래픽을 받음을 나타내는 **TrafficWeight** 값 **100**을 찾습니다.
 
     **PowerShell**
     ```powershell
     az containerapp revision list -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP -o table
+    ```
+
+    **Bash**
+    ```bash
+    az containerapp revision list -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP -o table
     ```
 
 1. 다음 명령을 실행하여 루트 엔드포인트를 확인하고 API 소비자 관점에서 증상을 관찰합니다. 이제 **model.name** 필드에는 구성된 값 대신 기본값인 **not-configured**가 표시됩니다.
@@ -213,28 +213,28 @@ lab:
 
 1. 다음 명령을 실행하여 `MODEL_NAME` 환경 변수를 다시 추가하고 문제를 해결합니다.
 
-    **Bash**
-    ```bash
-    az containerapp update -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
-        --set-env-vars MODEL_NAME=$MODEL_NAME
-    ```
-
     **PowerShell**
     ```powershell
     az containerapp update -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP `
         --set-env-vars MODEL_NAME=$env:MODEL_NAME
     ```
 
-1. 다음 명령을 실행하여 루트 엔드포인트를 다시 확인하고 수정 사항을 검증합니다. 이를 통해 API 소비자 관점에서 애플리케이션이 올바르게 동작하는지 확인합니다. 응답에 구성된 모델 이름이 표시되어야 합니다.
-
     **Bash**
     ```bash
-    curl -s "https://$FQDN/" | jq .model
+    az containerapp update -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
+        --set-env-vars MODEL_NAME=$MODEL_NAME
     ```
+
+1. 다음 명령을 실행하여 루트 엔드포인트를 다시 확인하고 수정 사항을 검증합니다. 이를 통해 API 소비자 관점에서 애플리케이션이 올바르게 동작하는지 확인합니다. 응답에 구성된 모델 이름이 표시되어야 합니다.
 
     **PowerShell**
     ```powershell
     (Invoke-RestMethod -Uri "https://$FQDN/").model
+    ```
+
+    **Bash**
+    ```bash
+    curl -s "https://$FQDN/" | jq .model
     ```
 
 누락된 환경 변수를 진단하고 수정했습니다. 다음으로 비밀 문제와 인그레스 구성 문제를 진단합니다.
@@ -245,39 +245,33 @@ Container Apps는 **target-port** 설정을 사용하여 컨테이너로 트래�
 
 1. 다음 명령을 실행하여 컨테이너 앱이 잘못된 대상 포트를 사용하도록 업데이트합니다.
 
-    **Bash**
-    ```bash
-    az containerapp ingress update -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
-        --target-port 3000
-    ```
-
     **PowerShell**
     ```powershell
     az containerapp ingress update -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP `
         --target-port 3000
     ```
 
-1. 다음 명령을 실행하여 상태 엔드포인트에 액세스하고 API 소비자 관점에서 증상을 확인합니다.
-
     **Bash**
     ```bash
-    curl -s "https://$FQDN/health"
+    az containerapp ingress update -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
+        --target-port 3000
     ```
+
+1. 다음 명령을 실행하여 상태 엔드포인트에 액세스하고 API 소비자 관점에서 증상을 확인합니다.
 
     **PowerShell**
     ```powershell
     Invoke-RestMethod -Uri "https://$FQDN/health"
     ```
 
+    **Bash**
+    ```bash
+    curl -s "https://$FQDN/health"
+    ```
+
     Container Apps가 트래픽을 포트 3000으로 라우팅하지만 애플리케이션은 포트 8000에서 수신 대기하므로 요청이 실패하거나 시간 초과됩니다.
 
 1. 다음 명령을 실행하여 현재 인그레스 구성을 확인하고 근본 원인을 진단합니다. **targetPort**가 3000으로 설정되어 있는지 확인합니다.
-
-    **Bash**
-    ```bash
-    az containerapp show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
-        --query "properties.configuration.ingress" -o yaml
-    ```
 
     **PowerShell**
     ```powershell
@@ -285,25 +279,25 @@ Container Apps는 **target-port** 설정을 사용하여 컨테이너로 트래�
         --query "properties.configuration.ingress" -o yaml
     ```
 
-1. 다음 명령을 실행하여 애플리케이션이 실행 중인지 컨테이너 로그를 확인합니다. 앱이 포트 8000에서 수신 중임을 나타내는 gunicorn 시작 메시지가 보여야 하며, 이로써 포트 불일치를 확인할 수 있습니다.
-
     **Bash**
     ```bash
-    az containerapp logs show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP
+    az containerapp show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
+        --query "properties.configuration.ingress" -o yaml
     ```
+
+1. 다음 명령을 실행하여 애플리케이션이 실행 중인지 컨테이너 로그를 확인합니다. 앱이 포트 8000에서 수신 중임을 나타내는 gunicorn 시작 메시지가 보여야 하며, 이로써 포트 불일치를 확인할 수 있습니다.
 
     **PowerShell**
     ```powershell
     az containerapp logs show -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP
     ```
 
-1. 다음 명령을 실행하여 올바른 대상 포트로 설정하고 인그레스 구성을 수정합니다.
-
     **Bash**
     ```bash
-    az containerapp ingress update -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
-        --target-port 8000
+    az containerapp logs show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP
     ```
+
+1. 다음 명령을 실행하여 올바른 대상 포트로 설정하고 인그레스 구성을 수정합니다.
 
     **PowerShell**
     ```powershell
@@ -311,16 +305,22 @@ Container Apps는 **target-port** 설정을 사용하여 컨테이너로 트래�
         --target-port 8000
     ```
 
-1. 다음 명령을 실행하여 상태 엔드포인트를 호출하고 수정 사항을 확인합니다. 이를 통해 API 소비자 관점에서 애플리케이션에 액세스할 수 있는지 확인합니다. **{"status":"healthy"}**가 표시되어야 합니다.
-
     **Bash**
     ```bash
-    curl -s "https://$FQDN/health"
+    az containerapp ingress update -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
+        --target-port 8000
     ```
+
+1. 다음 명령을 실행하여 상태 엔드포인트를 호출하고 수정 사항을 확인합니다. 이를 통해 API 소비자 관점에서 애플리케이션에 액세스할 수 있는지 확인합니다. **{"status":"healthy"}**가 표시되어야 합니다.
 
     **PowerShell**
     ```powershell
     Invoke-RestMethod -Uri "https://$FQDN/health"
+    ```
+
+    **Bash**
+    ```bash
+    curl -s "https://$FQDN/health"
     ```
 
 인그레스 구성 문제를 진단하고 수정했습니다. 다음으로 기록 로그를 쿼리하는 방법을 알아봅니다.
@@ -331,14 +331,6 @@ Container Apps는 **target-port** 설정을 사용하여 컨테이너로 트래�
 
 1. 다음 명령을 실행하여 Container Apps 환경에서 Log Analytics 작업 영역 ID를 가져옵니다.
 
-    **Bash**
-    ```bash
-    WORKSPACE_ID=$(az containerapp env show -n $ACA_ENVIRONMENT -g $RESOURCE_GROUP \
-        --query properties.appLogsConfiguration.logAnalyticsConfiguration.customerId -o tsv)
-
-    echo "Workspace ID: $WORKSPACE_ID"
-    ```
-
     **PowerShell**
     ```powershell
     $WORKSPACE_ID = az containerapp env show -n $env:ACA_ENVIRONMENT -g $env:RESOURCE_GROUP `
@@ -347,14 +339,15 @@ Container Apps는 **target-port** 설정을 사용하여 컨테이너로 트래�
     Write-Output "Workspace ID: $WORKSPACE_ID"
     ```
 
-1. 다음 명령을 실행하여 컨테이너 앱의 콘솔 로그를 쿼리합니다. 타임스탬프와 메시지를 보여 주는 최근 로그 항목 20개를 반환합니다.
-
     **Bash**
     ```bash
-    az monitor log-analytics query -w $WORKSPACE_ID \
-        --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$CONTAINER_APP_NAME' | project TimeGenerated, Log_s | order by TimeGenerated desc | take 20" \
-        -o table
+    WORKSPACE_ID=$(az containerapp env show -n $ACA_ENVIRONMENT -g $RESOURCE_GROUP \
+        --query properties.appLogsConfiguration.logAnalyticsConfiguration.customerId -o tsv)
+
+    echo "Workspace ID: $WORKSPACE_ID"
     ```
+
+1. 다음 명령을 실행하여 컨테이너 앱의 콘솔 로그를 쿼리합니다. 타임스탬프와 메시지를 보여 주는 최근 로그 항목 20개를 반환합니다.
 
     **PowerShell**
     ```powershell
@@ -363,22 +356,29 @@ Container Apps는 **target-port** 설정을 사용하여 컨테이너로 트래�
         -o table
     ```
 
+    **Bash**
+    ```bash
+    az monitor log-analytics query -w $WORKSPACE_ID \
+        --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$CONTAINER_APP_NAME' | project TimeGenerated, Log_s | order by TimeGenerated desc | take 20" \
+        -o table
+    ```
+
     > [!NOTE]
     > 이벤트가 발생한 후 Log Analytics 데이터가 표시되기까지 몇 분 정도 걸릴 수 있습니다. 최근 로그가 보이지 않으면 몇 분 기다렸다가 다시 시도합니다.
 
 1. 다음 명령을 실행하여 오류 수준 로그만 쿼리합니다.
 
-    **Bash**
-    ```bash
-    az monitor log-analytics query -w $WORKSPACE_ID \
-        --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$CONTAINER_APP_NAME' and Log_s contains 'error' | order by TimeGenerated desc | take 20" \
-        -o table
-    ```
-
     **PowerShell**
     ```powershell
     az monitor log-analytics query -w $WORKSPACE_ID `
         --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$env:CONTAINER_APP_NAME' and Log_s contains 'error' | order by TimeGenerated desc | take 20" `
+        -o table
+    ```
+
+    **Bash**
+    ```bash
+    az monitor log-analytics query -w $WORKSPACE_ID \
+        --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$CONTAINER_APP_NAME' and Log_s contains 'error' | order by TimeGenerated desc | take 20" \
         -o table
     ```
 

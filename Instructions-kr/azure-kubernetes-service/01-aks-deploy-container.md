@@ -12,24 +12,24 @@ lab:
 
 # Azure Kubernetes Service에 AI 추론 API 배포
 
-이 연습에서는 Microsoft Foundry AI 모델, Azure Container Registry(ACR), Azure Kubernetes Service(AKS) 클러스터를 비롯한 Azure 리소스를 배포합니다. 그런 다음 Kubernetes 매니페스트 파일을 완성하여 컨테이너 사양, 상태 프로브, 리소스 제한, 부하 분산을 정의합니다. 컨테이너화된 API를 AKS에 배포한 후 Python 클라이언트 애플리케이션을 사용하여 상태 확인, 준비 상태 검증, AI 모델 추론 요청을 포함한 배포된 API 엔드포인트를 테스트합니다.
+이 실습에서는 Microsoft Foundry AI 모델, Azure Container Registry(ACR), Azure Kubernetes Service(AKS) 클러스터를 비롯한 Azure 리소스를 배포합니다. 그런 다음 Kubernetes 매니페스트 파일을 완성하여 컨테이너 사양, 상태 프로브, 리소스 제한, 부하 분산을 정의합니다. 컨테이너화된 API를 AKS에 배포한 후 Python 클라이언트 애플리케이션을 사용하여 상태 확인, 준비 상태 검증, AI 모델 추론 요청을 포함한 배포된 API 엔드포인트를 테스트합니다.
 
-이 연습에서 수행하는 작업:
+이 실습에서 수행하는 작업:
 
 - 프로젝트 시작 파일 다운로드
 - Azure에 리소스 배포
 - *deployment.yaml* 및 *service.yaml* 파일을 완성하고 컨테이너를 AKS에 배포
 - 클라이언트 앱을 실행하여 API 테스트
 
-이 연습을 완료하는 데 약 **30**분이 걸립니다.
+이 실습을 완료하는 데 약 **30**분이 걸립니다.
 
->**중요:** Azure 무료 크레딧에서는 Azure Container Registry 작업 실행이 일시 중지되어 있습니다. 이 연습에는 종량제 또는 다른 유료 플랜이 필요합니다.
+>**중요:** Azure 무료 크레딧에서는 Azure Container Registry 작업 실행이 일시 중지되어 있습니다. 이 실습에는 종량제 또는 다른 유료 플랜이 필요합니다.
 
 ## 시작하기 전에
 
-연습을 완료하려면 다음이 필요합니다.
+실습을 완료하려면 다음이 필요합니다.
 
-- 필요한 Azure 서비스를 프로비전할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
+- 필요한 Azure 서비스를 프로비저닝할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
 - [Visual Studio Code](https://code.visualstudio.com/)를 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나에 설치
 - 최신 버전의 [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 - Kubernetes 명령줄 도구인 [kubectl](https://kubernetes.io/docs/tasks/tools/)
@@ -57,11 +57,11 @@ lab:
     location = "<your-azure-region>"   # Azure region for the resources
     ```
 
-    > **참고:** 배포에는 다음 세 Azure 지역 중 하나를 사용하는 것이 좋습니다. **eastus2**, **swedencentral**, **australiaeast**. 이 지역은 연습에서 사용하는 AI 추론 모델 배포를 지원합니다.
+    > **참고:** 배포에는 다음 세 Azure 지역 중 하나를 사용하는 것이 좋습니다. **eastus2**, **swedencentral**, **australiaeast**. 이 지역은 실습에서 사용하는 AI 추론 모델 배포를 지원합니다.
 
 1. 메뉴 모음에서 **터미널(Terminal) > 새 터미널(New Terminal)**을 선택하여 VS Code에서 터미널 창을 엽니다.
 
-1. 다음 명령을 실행하여 Azure 계정에 로그인합니다. 프롬프트에 따라 연습에 사용할 Azure 계정과 구독을 선택합니다.
+1. 다음 명령을 실행하여 Azure 계정에 로그인합니다. 프롬프트에 따라 실습에 사용할 Azure 계정과 구독을 선택합니다.
 
     ```
     az login
@@ -92,7 +92,7 @@ lab:
 
 1. **1. Provision gpt-5-mini model in Microsoft Foundry** 옵션을 시작하려면 **1**을 입력합니다. 이 옵션은 리소스 그룹이 아직 없는 경우 만들고, Microsoft Foundry에 리소스를 만든 다음 **gpt-5-mini** 모델을 해당 리소스에 배포합니다.
 
-    > **중요:** 모델 배포 중 오류가 발생하면 **7**을 입력하여 **7. Delete/Purge Foundry deployment** 옵션을 시작합니다. 그러면 배포가 삭제되고 리소스 이름이 제거됩니다. 메뉴를 종료한 후 배포 스크립트의 지역을 권장 지역 중 다른 하나로 변경합니다. 그런 다음 배포 스크립트를 다시 시작하고 모델 프로비전 옵션을 다시 실행합니다.
+    > **중요:** 모델 배포 중 오류가 발생하면 **7**을 입력하여 **7. Delete/Purge Foundry deployment** 옵션을 시작합니다. 그러면 배포가 삭제되고 리소스 이름이 제거됩니다. 메뉴를 종료한 후 배포 스크립트의 지역을 권장 지역 중 다른 하나로 변경합니다. 그런 다음 배포 스크립트를 다시 시작하고 모델 프로비저닝 옵션을 다시 실행합니다.
 
 1. 모델이 배포된 후 **2**를 입력하여 **2. Create Azure Container Registry (ACR)**를 시작합니다. 이 리소스에는 API 컨테이너를 저장하고 나중에 AKS 리소스로 가져옵니다.
 
@@ -114,7 +114,7 @@ lab:
 
 1. *k8s/deployment.yaml* 파일을 열어 파일 작성을 시작합니다.
 
-> **팁:** YAML을 해당 **BEGIN** 및 **END** 주석과 같은 들여쓰기 수준에 붙여 넣습니다. 블록의 들여쓰기가 맞지 않으면 붙여 넣은 줄을 선택하고 **Tab** 또는 **Shift+Tab**을 사용하여 전체 블록을 오른쪽이나 왼쪽으로 이동합니다.
+> **팁:** 코드 들여쓰기를 올바르게 유지하려면 코드를 왼쪽 여백의 첫 번째 열에 맞춰 붙여넣습니다. 붙여넣은 줄 전체를 선택하고 **Tab**을 눌러 **BEGIN / END** 표시와 정렬합니다. 필요하면 **Shift+Tab**을 눌러 들여쓰기를 줄입니다.
 
 1. **# BEGIN: Container specification** 주석을 찾아 그 아래에 다음 YAML 섹션을 매니페스트에 추가합니다. YAML 들여쓰기가 올바른지 확인합니다.
 
@@ -229,16 +229,16 @@ lab:
     python -m venv .venv
     ```
 
-1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Linux/macOS에서는 Bash 명령을 사용하고 Windows에서는 PowerShell 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
-
-    **Bash**
-    ```bash
-    source .venv/Scripts/activate
-    ```
+1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Windows에서는 PowerShell 명령을 사용하고, Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
 
     **PowerShell**
     ```powershell
     .\.venv\Scripts\Activate.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .venv/bin/activate
     ```
 
 1. VS Code 터미널에서 다음 명령을 실행하여 종속성을 설치합니다.
@@ -251,7 +251,7 @@ lab:
 
 이제 클라이언트 애플리케이션을 실행하여 API에서 여러 작업을 수행합니다. 앱은 메뉴 기반 인터페이스를 제공합니다.
 
-1. 터미널에서 다음 명령을 실행하여 콘솔 앱을 시작합니다. 필요한 경우 명령을 실행하기 전에 연습 앞부분의 명령을 참고하여 환경을 활성화합니다.
+1. 터미널에서 다음 명령을 실행하여 콘솔 앱을 시작합니다. 필요한 경우 명령을 실행하기 전에 실습 앞부분의 명령을 참고하여 환경을 활성화합니다.
 
     ```
     python main.py
@@ -269,19 +269,19 @@ lab:
 
 ## 리소스 정리
 
-연습을 마쳤으므로 불필요한 리소스 사용을 방지하기 위해 만든 클라우드 리소스를 삭제해야 합니다.
+실습을 마쳤으므로 불필요한 리소스 사용을 방지하기 위해 만든 클라우드 리소스를 삭제해야 합니다.
 
-1. VS Code 터미널에서 다음 명령을 실행하여 리소스 그룹과 그룹 내 모든 리소스를 삭제합니다. **<rg-name>**을 연습 앞부분에서 선택한 이름으로 바꿉니다. 이 명령은 Azure에서 리소스 그룹 삭제 백그라운드 작업을 시작합니다.
+1. VS Code 터미널에서 다음 명령을 실행하여 리소스 그룹과 그룹 내 모든 리소스를 삭제합니다. **<rg-name>**을 실습 앞부분에서 선택한 이름으로 바꿉니다. 이 명령은 Azure에서 리소스 그룹 삭제 백그라운드 작업을 시작합니다.
 
     ```
     az group delete --name <rg-name> --no-wait --yes
     ```
 
-> **주의:** 리소스 그룹을 삭제하면 그룹에 포함된 모든 리소스가 삭제됩니다. 이 연습을 위해 기존 리소스 그룹을 선택한 경우 연습 범위 밖의 기존 리소스도 삭제됩니다.
+> **주의:** 리소스 그룹을 삭제하면 그룹에 포함된 모든 리소스가 삭제됩니다. 이 실습을 위해 기존 리소스 그룹을 선택한 경우 실습 범위 밖의 기존 리소스도 삭제됩니다.
 
 ## 문제 해결
 
-이 연습을 진행하는 동안 문제가 발생하면 다음 문제 해결 단계를 시도합니다.
+이 실습을 진행하는 동안 문제가 발생하면 다음 문제 해결 단계를 시도합니다.
 
 **Azure 리소스 배포 확인**
 - [Azure portal](https://portal.azure.com)로 이동하여 리소스 그룹을 찾습니다.
@@ -290,7 +290,7 @@ lab:
 - AKS 클러스터의 상태가 **Succeeded**이고 노드가 실행 중인지 확인합니다.
 
 **AKS 클러스터 생성 실패 해결**
-- 배포 스크립트를 실행하고 **5. Check deployment status** 옵션을 선택합니다. AKS 리소스를 만들기 전에 할당량 검증이 실패할 수 있고, 프로비전 후반의 실패로 클러스터 상태가 **Failed** 또는 **Canceled**가 될 수 있습니다.
+- 배포 스크립트를 실행하고 **5. Check deployment status** 옵션을 선택합니다. AKS 리소스를 만들기 전에 할당량 검증이 실패할 수 있고, 프로비저닝 후반의 실패로 클러스터 상태가 **Failed** 또는 **Canceled**가 될 수 있습니다.
 - 오류에 **Standard_D2s_v7**을 사용할 수 없거나 해당 지역의 용량이 부족하다고 표시되면 옵션 **9**로 종료합니다. **AKS_VM_SIZE**를 배포 스크립트 상단에 나열된 v5 또는 v6 대체 크기 중 하나로 변경하거나 **location** 값을 다른 권장 지역으로 변경한 다음 옵션 **4. Create AKS cluster**를 다시 실행합니다.
 - 오류에 할당량 부족이 표시되면 구독에 사용 가능한 Dsv5 계열 할당량이 있는 지역을 선택하거나 할당량 증가를 요청합니다. 다른 지역에 충분한 할당량이 있는 경우에만 지역 변경이 도움이 됩니다.
 - 리소스 그룹이 다른 지역에 이미 있더라도 AKS 클러스터는 스크립트에 구성된 **location**을 사용합니다.

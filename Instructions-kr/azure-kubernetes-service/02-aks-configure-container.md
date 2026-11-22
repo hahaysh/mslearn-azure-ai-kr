@@ -12,9 +12,9 @@ lab:
 
 # Azure Kubernetes Service에서 앱 구성
 
-이 연습에서는 민감하지 않은 설정에 ConfigMap을 사용하고, 민감한 자격 증명에 Secret을 사용하며, 영구 저장소에 PersistentVolumeClaim을 사용하는 방식으로 Kubernetes 배포를 구성하는 방법을 알아봅니다. 컨테이너화된 API를 Azure Kubernetes Service(AKS)에 배포하고 다양한 Kubernetes 리소스로 구성한 다음 Python 클라이언트 애플리케이션으로 API를 사용합니다.
+이 실습에서는 민감하지 않은 설정에 ConfigMap을 사용하고, 민감한 자격 증명에 Secret을 사용하며, 영구 저장소에 PersistentVolumeClaim을 사용하는 방식으로 Kubernetes 배포를 구성하는 방법을 알아봅니다. 컨테이너화된 API를 Azure Kubernetes Service(AKS)에 배포하고 다양한 Kubernetes 리소스로 구성한 다음 Python 클라이언트 애플리케이션으로 API를 사용합니다.
 
-이 연습에서 수행하는 작업:
+이 실습에서 수행하는 작업:
 
 - 프로젝트 시작 파일 다운로드
 - Azure에 리소스 배포(ACR, AKS 클러스터)
@@ -25,17 +25,17 @@ lab:
 - 영구 볼륨에 저장된 API 로그 보기
 - Azure 리소스 정리
 
-이 연습을 완료하는 데 약 **30**분이 걸립니다.
+이 실습을 완료하는 데 약 **30**분이 걸립니다.
 
->**중요:** 이 연습의 영구 저장소 구현은 데모 용도일 뿐입니다. 로깅에는 영구 볼륨에 로그를 저장하는 대신 Azure Monitor 또는 Application Insights 같은 중앙 집중식 로깅 솔루션을 프로덕션 애플리케이션에서 사용해야 합니다. 영구 저장소가 필요한 경우 로그 순환 정책을 구현하여 저장 공간이 가득 차 컨테이너 실패와 Pod 축출이 발생하지 않도록 합니다.
+>**중요:** 이 실습의 영구 저장소 구현은 데모 용도일 뿐입니다. 로깅에는 영구 볼륨에 로그를 저장하는 대신 Azure Monitor 또는 Application Insights 같은 중앙 집중식 로깅 솔루션을 프로덕션 애플리케이션에서 사용해야 합니다. 영구 저장소가 필요한 경우 로그 순환 정책을 구현하여 저장 공간이 가득 차 컨테이너 실패와 Pod 축출이 발생하지 않도록 합니다.
 
-> **중요:** Azure 무료 크레딧에서는 Azure Container Registry 작업 실행이 일시 중지되어 있습니다. 이 연습에는 종량제 또는 다른 유료 플랜이 필요합니다.
+> **중요:** Azure 무료 크레딧에서는 Azure Container Registry 작업 실행이 일시 중지되어 있습니다. 이 실습에는 종량제 또는 다른 유료 플랜이 필요합니다.
 
 ## 시작하기 전에
 
-연습을 완료하려면 다음이 필요합니다.
+실습을 완료하려면 다음이 필요합니다.
 
-- 필요한 Azure 서비스를 프로비전할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
+- 필요한 Azure 서비스를 프로비저닝할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
 - [Visual Studio Code](https://code.visualstudio.com/)를 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나에 설치
 - 최신 버전의 [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 - Kubernetes 명령줄 도구인 [kubectl](https://kubernetes.io/docs/tasks/tools/)
@@ -65,7 +65,7 @@ lab:
 
 1. 메뉴 모음에서 **터미널(Terminal) > 새 터미널(New Terminal)**을 선택하여 VS Code에서 터미널 창을 엽니다.
 
-1. 다음 명령을 실행하여 Azure 계정에 로그인합니다. 프롬프트에 따라 연습에 사용할 Azure 계정과 구독을 선택합니다.
+1. 다음 명령을 실행하여 Azure 계정에 로그인합니다. 프롬프트에 따라 실습에 사용할 Azure 계정과 구독을 선택합니다.
 
     ```
     az login
@@ -95,7 +95,7 @@ lab:
 
 1. **Create Azure Container Registry (ACR)**를 시작하려면 **1**을 입력합니다. 이 리소스에는 API 컨테이너를 저장하고 나중에 AKS 리소스로 가져옵니다.
 
-    작업이 완료되면 ACR 엔드포인트가 반환됩니다. 이 정보는 연습 후반부에서 필요하므로 복사합니다.
+    작업이 완료되면 ACR 엔드포인트가 반환됩니다. 이 정보는 실습 후반부에서 필요하므로 복사합니다.
 
 1. ACR 리소스를 만든 후 **2**를 입력하여 **Build and push API image to ACR**을 시작합니다. 이 옵션은 ACR 작업을 사용하여 이미지를 빌드하고 ACR 리포지토리에 추가합니다. 이 작업을 완료하는 데 3~5분이 걸릴 수 있습니다.
 
@@ -259,16 +259,16 @@ PersistentVolumeClaim(PVC)은 Pod에 탑재할 저장소 리소스를 Azure에 �
     python -m venv .venv
     ```
 
-1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Linux/macOS에서는 Bash 명령을 사용하고 Windows에서는 PowerShell 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
-
-    **Bash**
-    ```bash
-    source .venv/Scripts/activate
-    ```
+1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Windows에서는 PowerShell 명령을 사용하고, Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
 
     **PowerShell**
     ```powershell
     .\.venv\Scripts\Activate.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .venv/bin/activate
     ```
 
 1. VS Code 터미널에서 다음 명령을 실행하여 종속성을 설치합니다.
@@ -281,7 +281,7 @@ PersistentVolumeClaim(PVC)은 Pod에 탑재할 저장소 리소스를 Azure에 �
 
 Python 환경을 구성하고 종속성을 설치했으므로 이제 클라이언트 애플리케이션을 실행하여 배포된 API를 테스트할 수 있습니다. API는 모든 작업을 영구 볼륨에 기록하며, 클라이언트는 다양한 엔드포인트와 상호 작용하는 메뉴 기반 인터페이스를 제공합니다.
 
-1. 터미널에서 다음 명령을 실행하여 콘솔 앱을 시작합니다. 필요한 경우 명령을 실행하기 전에 연습 앞부분의 명령을 참고하여 환경을 활성화합니다.
+1. 터미널에서 다음 명령을 실행하여 콘솔 앱을 시작합니다. 필요한 경우 명령을 실행하기 전에 실습 앞부분의 명령을 참고하여 환경을 활성화합니다.
 
     ```
     python main.py
@@ -341,19 +341,19 @@ Python 환경을 구성하고 종속성을 설치했으므로 이제 클라이�
 
 ## 리소스 정리
 
-연습을 마쳤으므로 불필요한 리소스 사용을 방지하기 위해 만든 클라우드 리소스를 삭제해야 합니다.
+실습을 마쳤으므로 불필요한 리소스 사용을 방지하기 위해 만든 클라우드 리소스를 삭제해야 합니다.
 
-1. VS Code 터미널에서 다음 명령을 실행하여 리소스 그룹과 그룹 내 모든 리소스를 삭제합니다. **<rg-name>**을 연습 앞부분에서 선택한 이름으로 바꿉니다. 이 명령은 Azure에서 리소스 그룹 삭제 백그라운드 작업을 시작합니다.
+1. VS Code 터미널에서 다음 명령을 실행하여 리소스 그룹과 그룹 내 모든 리소스를 삭제합니다. **<rg-name>**을 실습 앞부분에서 선택한 이름으로 바꿉니다. 이 명령은 Azure에서 리소스 그룹 삭제 백그라운드 작업을 시작합니다.
 
     ```
     az group delete --name <rg-name> --no-wait --yes
     ```
 
-> **주의:** 리소스 그룹을 삭제하면 그룹에 포함된 모든 리소스가 삭제됩니다. 이 연습을 위해 기존 리소스 그룹을 선택한 경우 연습 범위 밖의 기존 리소스도 삭제됩니다.
+> **주의:** 리소스 그룹을 삭제하면 그룹에 포함된 모든 리소스가 삭제됩니다. 이 실습을 위해 기존 리소스 그룹을 선택한 경우 실습 범위 밖의 기존 리소스도 삭제됩니다.
 
 ## 문제 해결
 
-이 연습을 진행하는 동안 문제가 발생하면 다음 문제 해결 단계를 시도합니다.
+이 실습을 진행하는 동안 문제가 발생하면 다음 문제 해결 단계를 시도합니다.
 
 **배포 스크립트로 배포 상태 확인**
 - 배포 스크립트를 실행하고 **5. Check deployment status** 옵션을 선택하여 배포된 모든 리소스의 상태를 확인합니다.
@@ -364,7 +364,7 @@ Python 환경을 구성하고 종속성을 설치했으므로 이제 클라이�
 - 이 출력을 사용하여 문제를 일으키는 구성 요소를 식별합니다.
 
 **AKS 클러스터 생성 실패 해결**
-- AKS 리소스를 만들기 전에 할당량 검증이 실패할 수 있고, 프로비전 후반의 실패로 클러스터 상태가 **Failed** 또는 **Canceled**가 될 수 있습니다.
+- AKS 리소스를 만들기 전에 할당량 검증이 실패할 수 있고, 프로비저닝 후반의 실패로 클러스터 상태가 **Failed** 또는 **Canceled**가 될 수 있습니다.
 - 오류에 **Standard_D2s_v7**을 사용할 수 없거나 해당 지역의 용량이 부족하다고 표시되면 옵션 **7**로 종료합니다. **AKS_VM_SIZE**를 배포 스크립트 상단에 나열된 v5 또는 v6 대체 크기 중 하나로 변경하거나 **location** 값을 변경한 다음 **3. Create AKS cluster** 옵션을 다시 실행합니다.
 - 오류에 할당량 부족이 표시되면 구독에 사용 가능한 Dsv5 계열 할당량이 있는 지역을 선택하거나 할당량 증가를 요청합니다. 다른 지역에 충분한 할당량이 있는 경우에만 지역 변경이 도움이 됩니다.
 - 리소스 그룹이 다른 지역에 이미 있더라도 AKS 클러스터는 스크립트에 구성된 **location**을 사용합니다.

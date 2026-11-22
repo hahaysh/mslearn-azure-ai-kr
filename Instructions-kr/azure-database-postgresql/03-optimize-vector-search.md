@@ -30,7 +30,7 @@ lab:
 
 실습을 완료하려면 다음이 필요합니다.
 
-- 필요한 Azure 서비스를 프로비전할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
+- 필요한 Azure 서비스를 프로비저닝할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
 - [Visual Studio Code](https://code.visualstudio.com/)를 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나에서 사용합니다.
 - 최신 버전의 [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 - [Python 3.12](https://www.python.org/downloads/) 이상
@@ -50,14 +50,14 @@ lab:
 
 1. Visual Studio Code(VS Code)를 시작하고 메뉴에서 **File > Open Folder...**를 선택한 다음 프로젝트 파일이 있는 폴더를 선택합니다.
 
-1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위에 있는 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 부분은 변경하지 마세요.
+1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위에 있는 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 부분은 변경하지 않습니다.
 
     ```
     "<your-resource-group-name>" # Resource Group name
     "<your-azure-region>" # Azure region for the resources
     ```
 
-1. 메뉴 모음에서 **Terminal(터미널) > New Terminal(새 터미널)**을 선택하여 VS Code에서 터미널 창을 엽니다.
+1. 메뉴 모음에서 **터미널(Terminal) > 새 터미널(New Terminal)**을 선택하여 VS Code에서 터미널 창을 엽니다.
 
     >**팁:** 이 실습은 전부 터미널에서 진행됩니다. 명령 결과를 쉽게 볼 수 있도록 패널을 최대화합니다.
 
@@ -83,7 +83,7 @@ lab:
     python azdeploy.py
     ```
 
-1. 스크립트 메뉴가 나타나면 **1**을 입력하여 **Create PostgreSQL server with Entra authentication(Entra 인증으로 PostgreSQL 서버 만들기)** 옵션을 실행합니다. 이 옵션은 Entra 전용 인증이 사용하도록 설정된 서버를 만듭니다. **참고:** 배포를 완료하는 데 5~10분 정도 걸릴 수 있습니다.
+1. 스크립트 메뉴가 나타나면 **1**을 입력하여 **Entra 인증으로 PostgreSQL 서버 만들기(Create PostgreSQL server with Entra authentication)** 옵션을 실행합니다. 이 옵션은 Entra 전용 인증이 사용하도록 설정된 서버를 만듭니다. **참고:** 배포를 완료하는 데 5~10분 정도 걸릴 수 있습니다.
 
     >**중요:** 실습이 끝날 때까지 배포를 실행하는 터미널을 열어 둡니다. 터미널에서 배포가 계속되는 동안 실습의 다음 섹션으로 이동할 수 있습니다.
 
@@ -126,24 +126,24 @@ HNSW(Hierarchical Navigable Small World)는 다중 계층 그래프 구조를 �
 
 이 섹션에서는 배포 스크립트로 돌아가 PostgreSQL 서버의 연결 정보를 가져옵니다.
 
-1. **Create PostgreSQL server with Entra authentication** 작업이 완료되면 **2**를 입력하여 **Configure vector extension allow-list(벡터 확장 허용 목록 구성)** 옵션을 실행합니다. 이 옵션은 서버의 **azure.extensions** 허용 목록에 **vector** 확장을 추가하므로 다음 섹션에서 pgvector를 사용하도록 설정할 수 있습니다. 변경 내용을 적용하기 위해 서버가 다시 시작됩니다. **참고:** 다시 시작하는 데 1~2분 정도 걸릴 수 있습니다.
+1. **Create PostgreSQL server with Entra authentication** 작업이 완료되면 **2**를 입력하여 **벡터 확장 허용 목록 구성(Configure vector extension allow-list)** 옵션을 실행합니다. 이 옵션은 서버의 **azure.extensions** 허용 목록에 **vector** 확장을 추가하므로 다음 섹션에서 pgvector를 사용하도록 설정할 수 있습니다. 변경 내용을 적용하기 위해 서버가 다시 시작됩니다. **참고:** 다시 시작하는 데 1~2분 정도 걸릴 수 있습니다.
 
-1. **3**을 입력하여 **Check deployment status(배포 상태 확인)** 옵션을 실행합니다. 이 옵션은 서버가 준비되었는지 확인합니다.
+1. **3**을 입력하여 **배포 상태 확인(Check deployment status)** 옵션을 실행합니다. 이 옵션은 서버가 준비되었는지 확인합니다.
 
-1. **4**를 입력하여 **Retrieve connection info and access token(연결 정보 및 액세스 토큰 검색)** 옵션을 실행합니다. 이 옵션은 필요한 환경 변수가 포함된 파일을 만듭니다.
+1. **4**를 입력하여 **연결 정보 및 액세스 토큰 검색(Retrieve connection info and access token)** 옵션을 실행합니다. 이 옵션은 필요한 환경 변수가 포함된 파일을 만듭니다.
 
 1. **5**를 입력하여 배포 스크립트를 종료합니다.
 
 1. 다음 명령을 실행하여 이전 단계에서 만든 파일의 환경 변수를 터미널 세션에 로드합니다.
 
-    **Bash**
-    ```bash
-    source .env
-    ```
-
     **PowerShell**
     ```powershell
     . .\.env.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .env
     ```
 
     >**참고:** 터미널을 열어 둡니다. 터미널을 닫고 새 터미널을 만들면 환경 변수를 다시 로드하는 명령을 실행해야 할 수 있습니다.
@@ -156,14 +156,14 @@ HNSW(Hierarchical Navigable Small World)는 다중 계층 그래프 구조를 �
 
 1. 환경 변수를 사용하여 서버에 연결하려면 다음 명령을 실행합니다. 인증에는 **PGPASSWORD** 환경 변수가 자동으로 사용됩니다.
 
-    **Bash**
-    ```bash
-    psql "host=$DB_HOST port=5432 dbname=$DB_NAME user=$DB_USER sslmode=require"
-    ```
-
     **PowerShell**
     ```powershell
     psql "host=$env:DB_HOST port=5432 dbname=$env:DB_NAME user=$env:DB_USER sslmode=require"
+    ```
+
+    **Bash**
+    ```bash
+    psql "host=$DB_HOST port=5432 dbname=$DB_NAME user=$DB_USER sslmode=require"
     ```
 
     >**팁:** 쿼리 결과가 현재 터미널 창에 모두 표시되지 않으면 psql은 페이저를 사용합니다. 페이저가 표시되면 **q**를 눌러 페이저를 닫고 psql 프롬프트로 돌아갑니다. 터미널 창을 최대화하면 페이저가 나타나는 상황을 줄이고 명령 결과를 더 쉽게 검토할 수 있습니다.

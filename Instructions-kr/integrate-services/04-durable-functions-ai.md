@@ -15,29 +15,29 @@ lab:
 
 Durable Functions는 상태 저장 오케스트레이션을 통해 Azure Functions를 확장하므로 서버리스 앱이 체크포인트, 큐 또는 폴링 루프를 직접 관리하지 않고도 오래 실행되는 작업을 조정할 수 있습니다. 오케스트레이터 함수는 진행 상태를 기록하므로 워크플로가 중단 후 복구되고, 실패한 작업을 재시도하고, 외부 이벤트를 효율적으로 기다리고, 지속성 타이머를 통해 다시 시작할 수 있습니다.
 
-이 연습에서는 클레임 문서를 병렬로 처리하는 Python Durable Functions 앱을 완성합니다. 멱등성 결과 저장, 활동 재시도, 실패 보상, 시간 제한이 있는 사람 승인 경로, 팬아웃/팬인 오케스트레이션 및 외부 이벤트 전달을 추가합니다. 그런 다음 Azurite를 사용하여 워크플로를 로컬로 실행하고 테스트합니다.
+이 실습에서는 클레임 문서를 병렬로 처리하는 Python Durable Functions 앱을 완성합니다. 멱등성 결과 저장, 활동 재시도, 실패 보상, 시간 제한이 있는 사람 승인 경로, 팬아웃/팬인 오케스트레이션 및 외부 이벤트 전달을 추가합니다. 그런 다음 Azurite를 사용하여 워크플로를 로컬로 실행하고 테스트합니다.
 
-이 연습에서 수행하는 작업:
+이 실습에서 수행하는 작업:
 
 - 프로젝트 시작 파일 다운로드
 - Function App에 지속성 워크플로 코드 추가
 - 워크플로를 로컬로 실행하고 테스트
 
-이 연습을 완료하는 데 약 **35**분이 걸립니다.
+이 실습을 완료하는 데 약 **35**분이 걸립니다.
 
 ## 시작하기 전에
 
-이 섹션에서는 연습에 필요한 도구와 액세스를 확인합니다.
+이 섹션에서는 실습에 필요한 도구와 액세스를 확인합니다.
 
-연습을 완료하려면 다음이 필요합니다.
+실습을 완료하려면 다음이 필요합니다.
 
-- [Visual Studio Code](https://code.visualstudio.com/) 및 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나.
+- [Visual Studio Code](https://code.visualstudio.com/)가 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나에 설치되어 있어야 합니다.
 - [Python 3.12](https://www.python.org/downloads/) 이상.
 - [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local) v4 이상.
 - Visual Studio Code용 [Azurite](https://marketplace.visualstudio.com/items?itemName=Azurite.azurite) 확장.
 - **선택 사항:** Python 코드 서식 지정 및 린팅을 위한 Visual Studio Code용 [Ruff 확장](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff).
 
-Durable Functions는 오케스트레이션 기록과 상태를 저장하기 위해 스토리지 공급자가 필요합니다. 이 연습에서는 로컬 스토리지 공급자로 Azurite를 사용합니다.
+Durable Functions는 오케스트레이션 기록과 상태를 저장하기 위해 스토리지 공급자가 필요합니다. 이 실습에서는 로컬 스토리지 공급자로 Azurite를 사용합니다.
 
 ## 프로젝트 시작 파일 다운로드
 
@@ -68,7 +68,7 @@ Durable Functions는 오케스트레이션 기록과 상태를 저장하기 위�
 
 1. Visual Studio Code 탐색기 사이드바에서 *function_app.py*를 엽니다.
 
->**참고:** 각 코드 블록은 일치하는 BEGIN 및 END 주석 사이에 추가합니다. 일부 블록은 기존 함수 안에 있으므로 들여쓰기를 네 칸 유지해야 합니다.
+> **팁:** 코드 들여쓰기를 올바르게 유지하려면 코드를 왼쪽 여백의 첫 번째 열에 맞춰 붙여넣습니다. 붙여넣은 줄 전체를 선택하고 **Tab**을 눌러 **BEGIN / END** 표시와 정렬합니다. 필요하면 **Shift+Tab**을 눌러 들여쓰기를 줄입니다.
 
 ### 멱등성 결과 저장 추가
 
@@ -279,16 +279,16 @@ Durable Functions는 오케스트레이션 기록과 상태를 저장하기 위�
     python -m venv .venv
     ```
 
-1. 다음 명령을 실행하여 Python 환경을 활성화합니다. Linux 또는 macOS에서는 Bash 명령을 사용하고 Windows에서는 PowerShell 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
-
-    **Bash**
-    ```bash
-    source .venv/Scripts/activate
-    ```
+1. 다음 명령을 실행하여 Python 환경을 활성화합니다. Windows에서는 PowerShell 명령을 사용하고, Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
 
     **PowerShell**
     ```powershell
     .\.venv\Scripts\Activate.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .venv/bin/activate
     ```
 
 1. 다음 명령을 실행하여 프로젝트 종속성을 설치합니다.

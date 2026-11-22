@@ -30,7 +30,7 @@ lab:
 
 실습을 완료하려면 다음이 필요합니다.
 
-- 필요한 Azure 서비스를 프로비전할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
+- 필요한 Azure 서비스를 프로비저닝할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
 - [Visual Studio Code](https://code.visualstudio.com/)를 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나에서 사용합니다.
 - 최신 버전의 [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 - [Python 3.12](https://www.python.org/downloads/) 이상
@@ -51,14 +51,14 @@ lab:
 
 1. Visual Studio Code(VS Code)를 시작하고 메뉴에서 **File > Open Folder...**를 선택한 다음 프로젝트 파일이 있는 폴더를 선택합니다.
 
-1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위에 있는 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 부분은 변경하지 마세요.
+1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위에 있는 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 부분은 변경하지 않습니다.
 
     ```
     "<your-resource-group-name>" # Resource Group name
     "<your-azure-region>" # Azure region for the resources
     ```
 
-1. 메뉴 모음에서 **Terminal(터미널) > New Terminal(새 터미널)**을 선택하여 VS Code에서 터미널 창을 엽니다.
+1. 메뉴 모음에서 **터미널(Terminal) > 새 터미널(New Terminal)**을 선택하여 VS Code에서 터미널 창을 엽니다.
 
 1. 다음 명령을 실행하여 Azure 계정에 로그인합니다. 프롬프트에 따라 실습에 사용할 Azure 계정과 구독을 선택합니다.
 
@@ -82,7 +82,7 @@ lab:
     python azdeploy.py
     ```
 
-1. 스크립트 메뉴가 나타나면 **1**을 입력하여 **Create PostgreSQL server with Entra authentication(Entra 인증으로 PostgreSQL 서버 만들기)** 옵션을 실행합니다. 이 옵션은 Entra 전용 인증이 사용하도록 설정된 서버를 만듭니다. **참고:** 배포를 완료하는 데 5~10분 정도 걸릴 수 있습니다.
+1. 스크립트 메뉴가 나타나면 **1**을 입력하여 **Entra 인증으로 PostgreSQL 서버 만들기(Create PostgreSQL server with Entra authentication)** 옵션을 실행합니다. 이 옵션은 Entra 전용 인증이 사용하도록 설정된 서버를 만듭니다. **참고:** 배포를 완료하는 데 5~10분 정도 걸릴 수 있습니다.
 
     >**중요:** 실습이 끝날 때까지 배포를 실행하는 터미널을 열어 둡니다. 터미널에서 배포가 계속되는 동안 실습의 다음 섹션으로 이동할 수 있습니다.
 
@@ -92,7 +92,7 @@ lab:
 
 1. VS Code에서 *agent-backend/agent_tools.py* 파일을 엽니다.
 
-    > **팁:** 일치하는 **BEGIN** 및 **END** 주석과 동일한 들여쓰기 수준에 코드를 붙여넣습니다. 블록이 정렬되지 않으면 붙여넣은 줄을 선택하고 **Tab** 또는 **Shift+Tab**을 사용하여 블록 전체를 오른쪽이나 왼쪽으로 이동합니다.
+    > **팁:** 코드 들여쓰기를 올바르게 유지하려면 코드를 왼쪽 여백의 첫 번째 열에 맞춰 붙여넣습니다. 붙여넣은 줄 전체를 선택하고 **Tab**을 눌러 **BEGIN / END** 표시와 정렬합니다. 필요하면 **Shift+Tab**을 눌러 들여쓰기를 줄입니다.
 
 1. **BEGIN CREATE CONVERSATION FUNCTION** 주석을 검색하고 주석 바로 뒤에 다음 코드를 추가합니다. 이 함수는 고유한 세션 ID로 새 대화 레코드를 만들고 선택적 메타데이터를 JSONB로 저장합니다.
 
@@ -188,22 +188,22 @@ lab:
 
 이 섹션에서는 배포 스크립트로 돌아가 PostgreSQL 서버의 연결 정보를 가져옵니다.
 
-1. **Create PostgreSQL server with Entra authentication** 작업이 완료되면 **2**를 입력하여 **Check deployment status(배포 상태 확인)** 옵션을 실행합니다. 이 옵션은 서버가 준비되었는지 확인합니다.
+1. **Create PostgreSQL server with Entra authentication** 작업이 완료되면 **2**를 입력하여 **배포 상태 확인(Check deployment status)** 옵션을 실행합니다. 이 옵션은 서버가 준비되었는지 확인합니다.
 
-1. **3**을 입력하여 **Retrieve connection info and access token(연결 정보 및 액세스 토큰 검색)** 옵션을 실행합니다. 이 옵션은 필요한 환경 변수가 포함된 파일을 만듭니다.
+1. **3**을 입력하여 **연결 정보 및 액세스 토큰 검색(Retrieve connection info and access token)** 옵션을 실행합니다. 이 옵션은 필요한 환경 변수가 포함된 파일을 만듭니다.
 
 1. **4**를 입력하여 배포 스크립트를 종료합니다.
 
 1. 다음 명령을 실행하여 이전 단계에서 만든 파일의 환경 변수를 터미널 세션에 로드합니다.
 
-    **Bash**
-    ```bash
-    source .env
-    ```
-
     **PowerShell**
     ```powershell
     . .\.env.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .env
     ```
 
     >**참고:** 터미널을 열어 둡니다. 터미널을 닫고 새 터미널을 만들면 환경 변수를 다시 만드는 명령을 실행해야 할 수 있습니다.
@@ -218,14 +218,14 @@ lab:
 
 1. 환경 변수를 사용하여 서버에 연결하려면 다음 명령을 실행합니다. 인증에는 **PGPASSWORD** 환경 변수가 자동으로 사용됩니다.
 
-    **Bash**
-    ```bash
-    psql "host=$DB_HOST port=5432 dbname=$DB_NAME user=$DB_USER sslmode=require"
-    ```
-
     **PowerShell**
     ```powershell
     psql "host=$env:DB_HOST port=5432 dbname=$env:DB_NAME user=$env:DB_USER sslmode=require"
+    ```
+
+    **Bash**
+    ```bash
+    psql "host=$DB_HOST port=5432 dbname=$DB_NAME user=$DB_USER sslmode=require"
     ```
 
 1. PostgreSQL 버전을 확인하여 연결을 검증하려면 다음 명령을 실행합니다.
@@ -323,16 +323,16 @@ lab:
     python -m venv .venv
     ```
 
-1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Linux/macOS에서는 Bash 명령을 사용하고 Windows에서는 PowerShell 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
-
-    **Bash**
-    ```bash
-    source .venv/Scripts/activate
-    ```
+1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Windows에서는 PowerShell 명령을 사용하고, Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
 
     **PowerShell**
     ```powershell
     .\.venv\Scripts\Activate.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .venv/bin/activate
     ```
 
 1. 앱에 필요한 Python 종속성을 설치하려면 다음 명령을 실행합니다. 이 명령은 PostgreSQL 연결을 위한 **psycopg** 라이브러리와 Microsoft Entra 인증을 위한 **azure-identity**를 설치합니다.
@@ -353,18 +353,18 @@ lab:
 
 ## 대화 컨텍스트 쿼리
 
-이 섹션에서는 에이전트가 의사 결정을 내릴 때 사용할 데이터를 쿼리하는 연습을 합니다.
+이 섹션에서는 에이전트가 의사 결정을 내릴 때 사용할 데이터를 쿼리하는 실습을 합니다.
 
 1. 환경 변수를 사용하여 **agent_memory** 데이터베이스에 연결하려면 다음 명령을 실행합니다.
-
-    **Bash**
-    ```bash
-    psql "host=$DB_HOST port=5432 dbname=agent_memory user=$DB_USER sslmode=require"
-    ```
 
     **PowerShell**
     ```powershell
     psql "host=$env:DB_HOST port=5432 dbname=agent_memory user=$env:DB_USER sslmode=require"
+    ```
+
+    **Bash**
+    ```bash
+    psql "host=$DB_HOST port=5432 dbname=agent_memory user=$DB_USER sslmode=require"
     ```
 
     >**팁:** 쿼리 결과가 현재 터미널 창에 모두 표시되지 않으면 psql은 페이저를 사용합니다. 페이저가 표시되면 **q**를 눌러 페이저를 닫고 psql 프롬프트로 돌아갑니다. 터미널 창을 최대화하면 페이저가 나타나는 상황을 줄이고 명령 결과를 더 쉽게 검토할 수 있습니다.

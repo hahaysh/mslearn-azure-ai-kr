@@ -13,9 +13,9 @@ lab:
 
 # Azure Cosmos DB for NoSQL에서 벡터 인덱스를 사용하여 쿼리 성능 최적화
 
-이 연습에서는 벡터 인덱싱 전략을 비교하고 조정하여 Azure Cosmos DB for NoSQL의 쿼리 성능을 최적화합니다. 벡터 인덱스는 검색 품질과 요청 단위(Request Unit, RU) 사용량 모두에 큰 영향을 줍니다. flat, quantizedFlat, diskANN의 세 가지 인덱스 유형으로 컨테이너를 만들고, 동일한 샘플 데이터를 로드한 다음, 성능 차이를 측정하기 위해 비교 검색을 실행합니다. 이 실습을 통해 AI 애플리케이션의 요구 사항에 적합한 인덱싱 전략을 선택할 수 있습니다.
+이 실습에서는 벡터 인덱싱 전략을 비교하고 조정하여 Azure Cosmos DB for NoSQL의 쿼리 성능을 최적화합니다. 벡터 인덱스는 검색 품질과 요청 단위(Request Unit, RU) 사용량 모두에 큰 영향을 줍니다. flat, quantizedFlat, diskANN의 세 가지 인덱스 유형으로 컨테이너를 만들고, 동일한 샘플 데이터를 로드한 다음, 성능 차이를 측정하기 위해 비교 검색을 실행합니다. 이 실습을 통해 AI 애플리케이션의 요구 사항에 적합한 인덱싱 전략을 선택할 수 있습니다.
 
-이 연습에서 수행하는 작업:
+이 실습에서 수행하는 작업:
 
 - 프로젝트 시작 파일을 다운로드하고 배포 스크립트를 구성합니다.
 - 벡터 검색 기능이 있는 Azure Cosmos DB for NoSQL 계정을 배포합니다.
@@ -23,13 +23,13 @@ lab:
 - flat, quantizedFlat, diskANN 인덱스를 사용하여 컨테이너를 만듭니다.
 - Flask 웹 애플리케이션을 사용하여 인덱스 성능을 테스트하고 비교합니다.
 
-이 연습을 완료하는 데 약 **30**분이 걸립니다.
+이 실습을 완료하는 데 약 **30**분이 걸립니다.
 
 ## 시작하기 전에
 
-연습을 완료하려면 다음이 필요합니다.
+실습을 완료하려면 다음이 필요합니다.
 
-- 필요한 Azure 서비스를 프로비전할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
+- 필요한 Azure 서비스를 프로비저닝할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
 - [Visual Studio Code](https://code.visualstudio.com/)를 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나에서 실행합니다.
 - 최신 버전의 [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 - [Python 3.12](https://www.python.org/downloads/) 이상
@@ -49,7 +49,7 @@ lab:
 
 1. Visual Studio Code(VS Code)를 시작하고 메뉴에서 **파일(File) > 폴더 열기(Open Folder)...**를 선택한 다음 프로젝트 파일이 들어 있는 폴더를 선택합니다.
 
-1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위에 있는 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 부분은 변경하지 마세요.
+1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위에 있는 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 부분은 변경하지 않습니다.
 
     ```
     "<your-resource-group-name>" # Resource Group name
@@ -58,13 +58,13 @@ lab:
 
 1. 메뉴 모음에서 **터미널(Terminal) > 새 터미널(New Terminal)**을 선택하여 VS Code에서 터미널 창을 엽니다.
 
-1. 다음 명령을 실행하여 Azure 계정에 로그인합니다. 안내에 따라 연습에 사용할 Azure 계정과 구독을 선택합니다.
+1. 다음 명령을 실행하여 Azure 계정에 로그인합니다. 안내에 따라 실습에 사용할 Azure 계정과 구독을 선택합니다.
 
     ```
     az login
     ```
 
-1. 다음 명령을 실행하여 구독에 연습에 필요한 리소스 공급자가 등록되어 있는지 확인합니다.
+1. 다음 명령을 실행하여 구독에 실습에 필요한 리소스 공급자가 등록되어 있는지 확인합니다.
 
     ```azurecli
     az provider register --namespace Microsoft.DocumentDB
@@ -82,7 +82,7 @@ lab:
 
 1. 스크립트 메뉴가 나타나면 **1**을 입력하여 **Cosmos DB 계정 만들기(Create Cosmos DB account)** 옵션을 실행합니다. 그러면 **EnableNoSQLVectorSearch** 기능이 활성화된 Cosmos DB for NoSQL 계정과 데이터베이스가 만들어집니다. **참고:** 배포를 완료하는 데 5~10분이 걸릴 수 있습니다.
 
-    >**중요:** 연습이 끝날 때까지 배포를 실행하는 터미널을 열어 두세요. 터미널에서 배포가 계속되는 동안 연습의 다음 섹션으로 진행할 수 있습니다.
+    >**중요:** 실습이 끝날 때까지 배포를 실행하는 터미널을 열어 둡니다. 터미널에서 배포가 계속되는 동안 실습의 다음 섹션으로 진행할 수 있습니다.
 
 ## 인덱스 비교 함수 완성
 
@@ -94,7 +94,7 @@ lab:
 
 1. VS Code에서 *client/index_functions.py* 파일을 엽니다.
 
-    > **팁:** 일치하는 **BEGIN** 및 **END** 주석과 동일한 들여쓰기 수준에 코드를 붙여넣습니다. 블록이 정렬되지 않으면 붙여넣은 줄을 선택하고 **Tab** 또는 **Shift+Tab**을 사용하여 전체 블록을 오른쪽이나 왼쪽으로 이동합니다.
+    > **팁:** 코드 들여쓰기를 올바르게 유지하려면 코드를 왼쪽 여백의 첫 번째 열에 맞춰 붙여넣습니다. 붙여넣은 줄 전체를 선택하고 **Tab**을 눌러 **BEGIN / END** 표시와 정렬합니다. 필요하면 **Shift+Tab**을 눌러 들여쓰기를 줄입니다.
 
 1. **BEGIN VECTOR SIMILARITY SEARCH FUNCTION** 주석을 검색하고 해당 주석 바로 뒤에 다음 코드를 추가합니다. 이 함수는 쿼리와 유사한 문서를 찾고 성능 메트릭을 추적합니다.
 
@@ -451,14 +451,14 @@ lab:
 
 1. 이전 단계에서 만든 파일의 환경 변수를 터미널 세션에 로드하려면 다음 명령을 실행합니다.
 
-    **Bash**
-    ```bash
-    source .env
-    ```
-
     **PowerShell**
     ```powershell
     . .\.env.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .env
     ```
 
     >**참고:** 터미널을 열어 둡니다. 터미널을 닫고 새 터미널을 열면 환경 변수를 다시 만드는 명령을 실행해야 할 수 있습니다.
@@ -481,16 +481,16 @@ lab:
     python -m venv .venv
     ```
 
-1. Python 환경을 활성화하려면 다음 명령을 실행합니다. **참고:** Linux/macOS에서는 Bash 명령을 사용하고 Windows에서는 PowerShell 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
-
-    **Bash**
-    ```bash
-    source .venv/Scripts/activate
-    ```
+1. Python 환경을 활성화하려면 다음 명령을 실행합니다. **참고:** Windows에서는 PowerShell 명령을 사용하고, Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
 
     **PowerShell**
     ```powershell
     .\.venv\Scripts\Activate.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .venv/bin/activate
     ```
 
 1. Python 종속성을 설치하려면 다음 명령을 실행합니다. 그러면 **flask**, **azure-cosmos**, **azure-identity** 라이브러리가 설치됩니다.
@@ -543,7 +543,7 @@ lab:
     - RU 비용은 인덱스 유형에 따라 다를 수 있습니다.
     - diskANN 인덱스는 일반적으로 규모가 커질수록 RU 소비량이 더 적습니다.
 
-1. **My payment was charged twice**(결제가 두 번 청구되었습니다) 또는 **Package hasn't arrived yet**(패키지가 아직 도착하지 않았습니다)와 같은 다른 쿼리도 시도하여 검색 전반에서 일관된 패턴이 나타나는지 확인합니다.
+1. **My payment was charged twice**(결제가 두 번 청구되었습니다) 또는 **Package hasn't arrived yet**(택배가 아직 도착하지 않았습니다)와 같은 다른 쿼리도 시도하여 검색 전반에서 일관된 패턴이 나타나는지 확인합니다.
 
 ### 필터링된 검색 성능 비교
 
@@ -576,11 +576,11 @@ lab:
 
 ## 요약
 
-이 연습에서는 Azure Cosmos DB for NoSQL의 벡터 인덱싱 전략을 비교했습니다. **EnableNoSQLVectorSearch** 기능을 사용하는 Azure Cosmos DB 계정을 배포하고 Entra ID 인증을 구성했습니다. Python SDK를 사용하여 서로 다른 벡터 인덱스 유형인 정확 검색용 flat, 메모리 효율성을 위한 quantizedFlat, 프로덕션 규모의 근사 검색용 diskANN으로 컨테이너 세 개를 만들었습니다. RU 소비량과 실행 시간을 추적하면서 벡터 유사도 검색을 수행하는 Python 함수를 만들었습니다. Flask 웹 애플리케이션으로 비교 검색을 실행하고 성능 차이를 분석했습니다. 이 패턴을 사용하면 데이터 세트 크기, 정확도 요구 사항, 비용 제약을 기준으로 AI 애플리케이션에 적합한 인덱싱 전략을 선택할 수 있습니다.
+이 실습에서는 Azure Cosmos DB for NoSQL의 벡터 인덱싱 전략을 비교했습니다. **EnableNoSQLVectorSearch** 기능을 사용하는 Azure Cosmos DB 계정을 배포하고 Entra ID 인증을 구성했습니다. Python SDK를 사용하여 서로 다른 벡터 인덱스 유형인 정확 검색용 flat, 메모리 효율성을 위한 quantizedFlat, 프로덕션 규모의 근사 검색용 diskANN으로 컨테이너 세 개를 만들었습니다. RU 소비량과 실행 시간을 추적하면서 벡터 유사도 검색을 수행하는 Python 함수를 만들었습니다. Flask 웹 애플리케이션으로 비교 검색을 실행하고 성능 차이를 분석했습니다. 이 패턴을 사용하면 데이터 세트 크기, 정확도 요구 사항, 비용 제약을 기준으로 AI 애플리케이션에 적합한 인덱싱 전략을 선택할 수 있습니다.
 
 ## 리소스 정리
 
-이제 연습을 완료했으므로 불필요한 리소스 사용을 방지하기 위해 만든 클라우드 리소스를 삭제해야 합니다.
+이제 실습을 완료했으므로 불필요한 리소스 사용을 방지하기 위해 만든 클라우드 리소스를 삭제해야 합니다.
 
 1. 리소스 그룹과 그룹 내 모든 리소스를 삭제하려면 VS Code 터미널에서 다음 명령을 실행합니다. 앞서 선택한 이름으로 **\<rg-name>**을 바꿉니다. 이 명령은 Azure에서 리소스 그룹을 삭제하는 백그라운드 작업을 시작합니다.
 
@@ -588,11 +588,11 @@ lab:
     az group delete --name <rg-name> --no-wait --yes
     ```
 
-> **주의:** 리소스 그룹을 삭제하면 그 안에 포함된 모든 리소스가 삭제됩니다. 기존 리소스 그룹을 이 연습에 사용한 경우 이 연습 범위에 속하지 않는 기존 리소스도 삭제됩니다.
+> **주의:** 리소스 그룹을 삭제하면 그 안에 포함된 모든 리소스가 삭제됩니다. 기존 리소스 그룹을 이 실습에 사용한 경우 이 실습 범위에 속하지 않는 기존 리소스도 삭제됩니다.
 
 ## 문제 해결
 
-이 연습 중 문제가 발생하면 다음 단계를 시도합니다.
+이 실습 중 문제가 발생하면 다음 단계를 시도합니다.
 
 **Flask 앱이 시작되지 않음**
 - Python 가상 환경이 활성화되어 있는지 확인합니다(터미널 프롬프트에 **(.venv)**가 표시되어야 함).

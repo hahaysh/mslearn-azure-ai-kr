@@ -12,32 +12,32 @@ lab:
 
 OpenTelemetry는 애플리케이션에서 추적, 메트릭 및 로그를 수집하는 표준화된 방법을 제공하는 오픈 소스 관찰 가능성 프레임워크입니다. Azure Monitor OpenTelemetry Distro는 OpenTelemetry SDK를 Azure Monitor 내보내기 도구와 함께 패키징하므로 Python 애플리케이션에서 최소한의 구성으로 Application Insights에 원격 분석을 보낼 수 있습니다. 사용자 지정 스팬을 사용하면 애플리케이션별 작업을 추적하고 비즈니스 컨텍스트로 추적 데이터를 보강하는 특성을 추가할 수 있습니다.
 
-이 연습에서는 Application Insights 리소스를 배포하고 문서 처리 파이프라인에 OpenTelemetry 계측을 보여 주는 Python Flask 웹 애플리케이션을 빌드합니다. Azure Monitor OpenTelemetry Distro를 구성하고, 각 파이프라인 단계에 사용자 지정 부모 및 자식 스팬을 만들고, 문서 메타데이터를 캡처하도록 스팬 특성을 추가합니다. 그런 다음 Azure portal에서 트랜잭션 검색(Transaction search)과 로그 쿼리를 사용하여 원격 분석을 확인하고 시뮬레이션된 지연 병목 현상을 진단합니다.
+이 실습에서는 Application Insights 리소스를 배포하고 문서 처리 파이프라인에 OpenTelemetry 계측을 보여 주는 Python Flask 웹 애플리케이션을 빌드합니다. Azure Monitor OpenTelemetry Distro를 구성하고, 각 파이프라인 단계에 사용자 지정 부모 및 자식 스팬을 만들고, 문서 메타데이터를 캡처하도록 스팬 특성을 추가합니다. 그런 다음 Azure portal에서 트랜잭션 검색(Transaction search)과 로그 쿼리를 사용하여 원격 분석을 확인하고 시뮬레이션된 지연 병목 현상을 진단합니다.
 
-이 연습에서 수행하는 작업은 다음과 같습니다.
+이 실습에서 수행하는 작업은 다음과 같습니다.
 
-- 프로젝트 스타터 파일 다운로드
+- 프로젝트 시작 파일 다운로드
 - Application Insights 리소스 만들기
-- 앱을 완성하기 위해 스타터 파일에 코드 추가
+- 앱을 완성하기 위해 시작 파일에 코드 추가
 - 앱을 실행하고 Application Insights에서 성능 문제 진단
 
-이 연습을 완료하는 데 약 **25**분이 걸립니다.
+이 실습을 완료하는 데 약 **25**분이 걸립니다.
 
 ## 시작하기 전에
 
-연습을 완료하려면 다음이 필요합니다.
+실습을 완료하려면 다음이 필요합니다.
 
-- 필요한 Azure 서비스를 프로비전할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
+- 필요한 Azure 서비스를 프로비저닝할 권한과 할당량이 있는 [Azure 구독](https://azure.microsoft.com/)
 - [Visual Studio Code](https://code.visualstudio.com/)를 [지원되는 플랫폼](https://code.visualstudio.com/docs/supporting/requirements#_platforms) 중 하나에 설치합니다.
 - [Python 3.12](https://www.python.org/downloads/) 이상
 - 최신 버전의 [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 - **선택 사항:** Python 코드 서식 지정 및 린팅을 위한 [Visual Studio Code용 Ruff 확장](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
 
-## 프로젝트 스타터 파일 다운로드 및 Application Insights 배포
+## 프로젝트 시작 파일 다운로드 및 Application Insights 배포
 
-이 섹션에서는 앱의 스타터 파일을 다운로드하고 스크립트를 사용하여 구독에 Application Insights 리소스를 배포합니다.
+이 섹션에서는 앱의 시작 파일을 다운로드하고 스크립트를 사용하여 구독에 Application Insights 리소스를 배포합니다.
 
-1. 브라우저를 열고 다음 URL을 입력하여 스타터 파일을 다운로드합니다. 파일은 기본 다운로드 위치에 저장됩니다.
+1. 브라우저를 열고 다음 URL을 입력하여 시작 파일을 다운로드합니다. 파일은 기본 다운로드 위치에 저장됩니다.
 
     ```
     https://github.com/MicrosoftLearning/mslearn-azure-ai/raw/main/downloads/python/instrument-app-python.zip
@@ -47,7 +47,7 @@ OpenTelemetry는 애플리케이션에서 추적, 메트릭 및 로그를 수집
 
 1. Visual Studio Code(VS Code)를 시작하고 메뉴에서 **파일(File) > 폴더 열기(Open Folder)...**를 선택한 다음 프로젝트 파일이 있는 폴더를 선택합니다.
 
-1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위에 있는 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 부분은 변경하지 마세요.
+1. *azdeploy.py* 배포 스크립트를 열고 스크립트 맨 위에 있는 두 값을 필요에 맞게 변경한 다음 변경 내용을 저장합니다. **참고:** 스크립트의 다른 부분은 변경하지 않습니다.
 
     ```
     "<your-resource-group-name>" # Resource Group name
@@ -56,13 +56,13 @@ OpenTelemetry는 애플리케이션에서 추적, 메트릭 및 로그를 수집
 
 1. 메뉴 모음에서 **터미널(Terminal) > 새 터미널(New Terminal)**을 선택하여 VS Code에서 터미널 창을 엽니다.
 
-1. 다음 명령을 실행하여 Azure 계정에 로그인합니다. 프롬프트에 따라 연습에 사용할 Azure 계정과 구독을 선택합니다.
+1. 다음 명령을 실행하여 Azure 계정에 로그인합니다. 프롬프트에 따라 실습에 사용할 Azure 계정과 구독을 선택합니다.
 
     ```
     az login
     ```
 
-1. 다음 명령을 실행하여 구독에 연습에 필요한 리소스 공급자가 등록되었는지 확인합니다.
+1. 다음 명령을 실행하여 구독에 실습에 필요한 리소스 공급자가 등록되었는지 확인합니다.
 
     ```
     az provider register --namespace Microsoft.Insights
@@ -87,7 +87,7 @@ OpenTelemetry는 애플리케이션에서 추적, 메트릭 및 로그를 수집
 
 1. **2**를 입력하여 **2. Assign role** 옵션을 실행합니다. 이 옵션은 앱에서 Microsoft Entra 인증을 사용하여 Application Insights에 원격 분석을 게시할 수 있도록 계정에 Monitoring Metrics Publisher 역할을 할당합니다.
 
-1. **3**을 입력하여 **3. Check deployment status** 옵션을 실행합니다. 계속하기 전에 Application Insights 리소스가 **Succeeded**로 표시되고 역할이 할당되었는지 확인합니다. 리소스 프로비전이 아직 진행 중이면 잠시 기다렸다가 다시 확인합니다.
+1. **3**을 입력하여 **3. Check deployment status** 옵션을 실행합니다. 계속하기 전에 Application Insights 리소스가 **Succeeded**로 표시되고 역할이 할당되었는지 확인합니다. 리소스 프로비저닝이 아직 진행 중이면 잠시 기다렸다가 다시 확인합니다.
 
 1. **4**를 입력하여 **4. Retrieve connection info** 옵션을 실행합니다. 이 옵션은 앱에 필요한 Application Insights 연결 문자열과 **OTEL_SERVICE_NAME** 변수가 포함된 환경 변수 파일을 만듭니다.
 
@@ -95,25 +95,23 @@ OpenTelemetry는 애플리케이션에서 추적, 메트릭 및 로그를 수집
 
 1. 이전 단계에서 만든 파일의 환경 변수를 터미널 세션에 로드하는 적절한 명령을 실행합니다.
 
-    **Bash**
-    ```bash
-    source .env
-    ```
-
     **PowerShell**
     ```powershell
     . .\.env.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .env
     ```
 
     >**참고:** 터미널을 열어 둡니다. 터미널을 닫고 새 터미널을 열면 환경 변수를 다시 로드하기 위해 이 명령을 다시 실행해야 합니다.
 
 ## 앱 완성
 
-이 섹션에서는 *telemetry_functions.py* 파일에 코드를 추가하여 OpenTelemetry 계측 함수를 완성합니다. *app.py*의 Flask 앱은 이 함수를 호출하고 결과를 브라우저에 표시합니다. 연습 후반부에 앱을 실행합니다.
+이 섹션에서는 *telemetry_functions.py* 파일에 코드를 추가하여 OpenTelemetry 계측 함수를 완성합니다. *app.py*의 Flask 앱은 이 함수를 호출하고 결과를 브라우저에 표시합니다. 실습 후반부에 앱을 실행합니다.
 
 1. 코드를 추가하려면 *client/telemetry_functions.py* 파일을 엽니다.
-
->**참고:** 애플리케이션에 추가하는 코드 블록은 해당 코드 섹션의 주석과 같은 위치에 맞춰야 합니다.
 
 ### 원격 분석 구성 코드 추가
 
@@ -121,7 +119,7 @@ OpenTelemetry는 애플리케이션에서 추적, 메트릭 및 로그를 수집
 
 이 함수는 Azure Monitor OpenTelemetry Distro 패키지의 **configure_azure_monitor()**를 호출합니다. 이 단일 호출은 Azure Monitor 추적 내보내기 도구로 OpenTelemetry SDK를 구성하고 Flask 요청의 자동 계측을 설정합니다. **credential** 매개 변수는 Entra 기반 인증을 사용하도록 하여 앱이 계측 키 대신 Monitoring Metrics Publisher 역할로 원격 분석을 게시하도록 합니다. 배포 스크립트가 *.env* 파일에 설정하는 **OTEL_SERVICE_NAME** 환경 변수는 Application Map에 표시되는 **cloud.role.name**을 제어합니다.
 
-> **팁:** 일치하는 **BEGIN** 및 **END** 주석과 같은 들여쓰기 수준에 코드를 붙여 넣습니다. 블록의 위치가 맞지 않으면 붙여 넣은 줄을 선택하고 **Tab** 또는 **Shift+Tab**을 사용하여 전체 블록을 오른쪽이나 왼쪽으로 이동합니다.
+> **팁:** 코드 들여쓰기를 올바르게 유지하려면 코드를 왼쪽 여백의 첫 번째 열에 맞춰 붙여넣습니다. 붙여넣은 줄 전체를 선택하고 **Tab**을 눌러 **BEGIN / END** 표시와 정렬합니다. 필요하면 **Shift+Tab**을 눌러 들여쓰기를 줄입니다.
 
 1. **# BEGIN CONFIGURE TELEMETRY FUNCTION** 주석을 찾아 그 아래에 다음 코드를 추가합니다. 코드 들여쓰기가 올바른지 확인합니다.
 
@@ -279,16 +277,16 @@ OpenTelemetry는 애플리케이션에서 추적, 메트릭 및 로그를 수집
     python -m venv .venv
     ```
 
-1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서는 PowerShell 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
-
-    **Bash**
-    ```bash
-    source .venv/Scripts/activate
-    ```
+1. 다음 명령을 실행하여 Python 환경을 활성화합니다. **참고:** Windows에서는 PowerShell 명령을 사용하고, Linux/macOS에서는 Bash 명령을 사용합니다. Windows에서 Git Bash를 사용하는 경우 **source .venv/Scripts/activate**를 사용합니다.
 
     **PowerShell**
     ```powershell
     .\.venv\Scripts\Activate.ps1
+    ```
+
+    **Bash**
+    ```bash
+    source .venv/bin/activate
     ```
 
 1. VS Code 터미널에서 다음 명령을 실행하여 종속성을 설치합니다.
@@ -358,23 +356,23 @@ OpenTelemetry는 애플리케이션에서 추적, 메트릭 및 로그를 수집
 
 ## 리소스 정리
 
-연습을 완료했으므로 불필요한 리소스 사용을 방지하기 위해 만든 클라우드 리소스를 삭제해야 합니다.
+실습을 완료했으므로 불필요한 리소스 사용을 방지하기 위해 만든 클라우드 리소스를 삭제해야 합니다.
 
-1. VS Code 터미널에서 다음 명령을 실행하여 리소스 그룹과 그룹 내 모든 리소스를 삭제합니다. **<rg-name>**을 연습 앞부분에서 선택한 이름으로 바꿉니다. 이 명령은 Azure에서 리소스 그룹을 삭제하는 백그라운드 작업을 시작합니다.
+1. VS Code 터미널에서 다음 명령을 실행하여 리소스 그룹과 그룹 내 모든 리소스를 삭제합니다. **<rg-name>**을 실습 앞부분에서 선택한 이름으로 바꿉니다. 이 명령은 Azure에서 리소스 그룹을 삭제하는 백그라운드 작업을 시작합니다.
 
     ```
     az group delete --name <rg-name> --no-wait --yes
     ```
 
-> **주의:** 리소스 그룹을 삭제하면 그 안에 포함된 모든 리소스가 삭제됩니다. 이 연습을 위해 기존 리소스 그룹을 선택한 경우 이 연습 범위를 벗어나는 기존 리소스도 삭제됩니다.
+> **주의:** 리소스 그룹을 삭제하면 그 안에 포함된 모든 리소스가 삭제됩니다. 이 실습을 위해 기존 리소스 그룹을 선택한 경우 이 실습 범위를 벗어나는 기존 리소스도 삭제됩니다.
 
 ## 문제 해결
 
-이 연습을 완료하는 동안 문제가 발생하면 다음 문제 해결 단계를 시도합니다.
+이 실습을 완료하는 동안 문제가 발생하면 다음 문제 해결 단계를 시도합니다.
 
 **Application Insights 배포 확인**
 - [Azure portal](https://portal.azure.com)로 이동하여 리소스 그룹을 찾습니다.
-- Application Insights 리소스의 **프로비전 상태(Provisioning State)**가 **Succeeded**인지 확인합니다.
+- Application Insights 리소스의 **프로비저닝 상태(Provisioning State)**가 **Succeeded**인지 확인합니다.
 
 **연결 문자열 확인**
 - 배포 스크립트의 **Check deployment status** 옵션을 실행하여 리소스가 성공적으로 만들어졌는지 확인합니다.
