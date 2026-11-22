@@ -2,7 +2,7 @@
 lab:
   topic: Azure Container Apps
   title: 실패한 배포 진단 및 수정
-    description: 환경 변수 누락과 인그레스 구성 오류를 진단하고 Log Analytics로 과거 로그를 조회하여 Azure Container Apps 문제를 해결하는 방법을 알아봅니다.
+  description: 환경 변수 누락과 인그레스 구성 오류를 진단하고 Log Analytics로 과거 로그를 조회하여 Azure Container Apps 문제를 해결하는 방법을 알아봅니다.
   level: 300
   duration: 30
   islab: true
