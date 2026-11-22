@@ -94,13 +94,14 @@ git fetch https://github.com/MicrosoftLearning/mslearn-azure-ai.git main
 $sourceCommit = git rev-parse FETCH_HEAD
 git diff "$($previousCommit):instructions" "$($sourceCommit):instructions"
 python .github\skills\mslearn-korean-localization\scripts\validate_translation.py --repo . --source Instructions --target Instructions-kr --readme Instructions-kr\README.md --powershell-first
+python -B -m unittest discover -s .github\skills\mslearn-korean-localization\scripts -p test_validate_translation.py -v
 git diff --check
 git status --short
 ```
 
 이 저장소의 한국어판 검증에는 `--powershell-first`를 사용합니다. 이 옵션은 같은 단계의 인접한 셸 예제를 PowerShell 우선 순서로 비교하며, 명령 수정이나 다른 단계로의 이동을 허용하지 않습니다. 옵션을 생략하면 기존의 엄격한 원문 순서 검증이 유지되므로 현재 한국어판의 의도적인 셸 순서 변경이 오류로 보고됩니다.
 
-**현재 검증기 제한:** [번들 검증기](../.github/skills/mslearn-korean-localization/scripts/validate_translation.py)는 `Bash` 제목 아래의 `azurecli` 코드 펜스와 `Powershell` 표기를 셸 쌍으로 인식하지 못합니다. 또한 Container Apps 관리 실습의 원문에서 닫히지 않은 펜스로 가려진 번호 단계를 한국어판에서 표시하면 단계 구조 차이로 보고합니다. 따라서 아래의 2026-11-23 보완 이후 위 명령은 두 실습에서 오류를 보고합니다. 검증기 개선이 필요하지만 이번 작업의 수정 범위 밖이므로 파일은 변경하지 않았습니다. 이번 검토에서는 해당 셸 태그와 알려진 원문 펜스만 메모리에서 보정하여 전체 구조를 검증하고, 별도로 모든 명령 내용과 단계별 배치의 보존을 확인했습니다.
+**검증기 처리 범위:** [번들 검증기](../.github/skills/mslearn-korean-localization/scripts/validate_translation.py)는 셸 제목을 기준으로 `Bash` 아래의 `bash`·`azurecli` 코드 펜스를 인식하며, `PowerShell` 제목의 대소문자 차이도 허용합니다. `--powershell-first`에서는 Container Apps 관리 실습의 알려진 미종료 원문 펜스만 정확한 경로와 원문 내용으로 확인하여 비교용 메모리에서 닫습니다. 한국어판의 원문 보존 주석이 없거나 변경되면 오류를 보고하고, 일치하는 주석만 비교에서 제외하여 실제 표시되는 코드와 번호 단계를 검증합니다. 다른 원문 오류를 자동으로 보정하거나 명령 내용 변경을 허용하지 않습니다. 옵션을 생략한 기본 엄격 검증은 유지합니다.
 
 ## 동기화 상태
 
@@ -112,7 +113,7 @@ git status --short
 | 기준 upstream 커밋 | `4bb868b5f05e233df0d0e2294dc75438038e1b6f` |
 | 이전 번역 기준 커밋 | `af79d9a3fd8c972b1de35467d638344241a99420` |
 | 마지막 검토일 | `2026-11-23` |
-| 전체 상태 | 한국어 실습 29개 검토, 잔여 셸 쌍 7곳 PowerShell 우선 재배치 및 별도 보존 검증 완료; 번들 검증기 제한은 위 안내 참조 |
+| 전체 상태 | 한국어 실습 29개 검토 및 잔여 셸 쌍 7곳 PowerShell 우선 재배치 완료; 정식 번들 검증기와 회귀 테스트 7개 통과 |
 | upstream 동기화 변경 | 기존 한국어 실습 21개 갱신, 6개 변경 없이 검토, 신규 실습 2개 번역 |
 | 한국어 교정 | 한국어 실습 29개 의미·문법·용어·문체·UI 병기 개선, 영문 원본 변경 없음 |
 | 영문 최신화 | 기존 영문 18개 갱신 및 신규 2개 추가, 모든 파일이 upstream 원문과 바이트 단위로 일치 |
@@ -184,8 +185,18 @@ git status --short
 - [Container Apps 관리](azure-container-apps/02-aca-manage-containers.md): 루트 엔드포인트 확인과 앱 구성 조회 예제 2쌍을 재배치했습니다. 보이는 PowerShell 블록에 누락된 닫는 펜스를 추가하여 다음 번호 단계가 코드에 포함되지 않도록 했으며, Liquid 주석 안에 보존한 손상된 영문 원본은 내용 변경 없이 유지했습니다.
 - 셸 표시 검증: 전체 실습의 병렬 셸 예제 120쌍이 PowerShell 우선이며, 보이는 Bash 우선 쌍과 닫히지 않은 셸 코드 펜스는 없습니다.
 - 보존 검증: HEAD와 비교하여 전체 29개 실습의 명령 내용, 코드 펜스 언어 태그, 단계별 명령 배치 및 원문 보존 주석이 동일함을 확인했습니다.
-- 구조 검증: 검증기 파일을 수정하지 않고 `azurecli` 셸 쌍을 인식하도록 메모리에서 확장했습니다. 관리 실습만 Liquid 주석을 제외하고 원문의 누락된 펜스를 메모리에서 닫아 비교했으며, 전체 실습 29개가 통과했습니다. 수정하지 않은 번들 검증기는 배포 실습의 코드 순서와 관리 실습의 번호 단계에 관한 오류 2개를 보고합니다.
+- 당시 구조 검증: 검증기 파일을 수정하지 않고 `azurecli` 셸 쌍을 인식하도록 메모리에서 확장했습니다. 관리 실습만 Liquid 주석을 제외하고 원문의 누락된 펜스를 메모리에서 닫아 비교했으며, 전체 실습 29개가 통과했습니다. 수정 전 번들 검증기는 배포 실습의 코드 순서와 관리 실습의 번호 단계에 관한 오류 2개를 보고했습니다. 이후 아래의 검증기 개선으로 이 오류를 해소했습니다.
 - 수정 범위는 `Instructions-kr`의 실습 2개와 이 README뿐입니다. 기존 CLI 매개변수는 도움말로 확인했고, `git diff --check`도 통과했습니다. 커밋, 푸시 및 게시 작업은 수행하지 않았습니다.
+
+### 2026-11-23 검증기 개선
+
+사용자 승인에 따라 한국어 지침 폴더 밖의 번들 검증기를 개선하고 [회귀 테스트](../.github/skills/mslearn-korean-localization/scripts/test_validate_translation.py)를 추가했습니다. 영문 원본과 실습 명령은 변경하지 않았습니다.
+
+- 셸 제목의 대소문자와 `azurecli` 펜스를 지원하며, 코드·주석 내부나 다른 번호 단계로는 셸 예제를 이동하지 않습니다.
+- 관리 실습의 알려진 원문 펜스만 비교 시 보정합니다. 보존 주석과 실제 표시 코드 모두 확인하므로 주석에 원문이 남아 있어도 표시 명령을 바꾸면 검증이 실패합니다.
+- 정식 번들 검증기: 위에 기록한 `--powershell-first` 명령으로 실습 29개 통과. 별도의 메모리 확장 실행은 더 이상 필요하지 않습니다.
+- 회귀 테스트: 위의 `python -B -m unittest discover -s .github\skills\mslearn-korean-localization\scripts -p test_validate_translation.py -v` 명령으로 7개 통과. 셸 순서·줄바꿈·중첩 코드·주석 보존, 기본 엄격 모드, 명령 변조 및 보존 주석 변경 거부를 확인했습니다.
+- Pylance 구문 검사와 `git diff --check` 통과. 커밋, 푸시 및 게시 작업은 수행하지 않았습니다.
 
 ## 동기화 당시 검증 결과
 

@@ -18,7 +18,7 @@ INLINE_CODE = re.compile(r"(?<!`)`([^`\n]+)`(?!`)")
 KOREAN = re.compile(r"[가-힣]")
 SHELL_PAIR = re.compile(
     r"(?P<bash>^[ \t]*\*\*Bash\*\*[ \t]*\r?\n"
-    r"[ \t]*```bash[ \t]*\r?\n"
+    r"[ \t]*```(?:bash|azurecli)[ \t]*\r?\n"
     r"(?:(?![ \t]*(?:```|\*\*(?:Bash|PowerShell)\*\*)).*\n)*"
     r"[ \t]*```[ \t]*\r?\n)"
     r"(?P<gap>(?:[ \t]*\r?\n)*)"
@@ -26,15 +26,29 @@ SHELL_PAIR = re.compile(
     r"[ \t]*```powershell[ \t]*\r?\n"
     r"(?:(?![ \t]*(?:```|\*\*(?:Bash|PowerShell)\*\*)).*\n)*"
     r"[ \t]*```[ \t]*\r?\n)",
-    re.MULTILINE,
+    re.MULTILINE | re.IGNORECASE,
 )
 SHELL_BULLET_PAIR = re.compile(
     r"(?P<bash>^[ \t]*-[ \t]+\*\*Bash(?: \([^()\r\n]*\))?:\*\*[^\r\n]*\r?\n)"
     r"(?P<powershell>[ \t]*-[ \t]+\*\*PowerShell(?: \([^()\r\n]*\))?:\*\*[^\r\n]*\r?\n)",
-    re.MULTILINE,
+    re.MULTILINE | re.IGNORECASE,
 )
 COMMENTS = re.compile(
     r"(\{%\s*comment\s*%\}.*?\{%\s*endcomment\s*%\}|<!--.*?-->)", re.DOTALL
+)
+KNOWN_UNCLOSED_MODEL_FENCE = (
+    "    ```powershell\n"
+    '    (Invoke-RestMethod -Uri "https://$FQDN/").model\n'
+    "\n"
+    "1. Run the following command to diagnose the root cause by viewing the "
+    "container app's configuration. Run the following command to confirm the "
+    "**MODEL_NAME** environment variable is missing.\n"
+    "\n"
+    "    **Bash**\n"
+    "    ```bash\n"
+    "    az containerapp show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \\\n"
+    '        --query "properties.template.containers[0].env" -o table\n'
+    "    ```\n"
 )
 
 
@@ -75,6 +89,34 @@ def powershell_first(text: str) -> str:
         parts[index] = reorder_shell_pairs(parts[index], SHELL_PAIR)
         parts[index] = reorder_shell_pairs(parts[index], SHELL_BULLET_PAIR)
     return "".join(parts)
+
+
+def normalize_known_source_fence(
+    source: str, target: str, relative_path: Path
+) -> tuple[str, str]:
+    """Repair only the exact known upstream fence for visible-content comparison."""
+    if (
+        relative_path
+        != Path("azure-container-apps") / "02-aca-manage-containers.md"
+        or KNOWN_UNCLOSED_MODEL_FENCE not in source
+    ):
+        return source, target
+
+    preserved = [
+        comment
+        for comment in COMMENTS.findall(target)
+        if KNOWN_UNCLOSED_MODEL_FENCE in comment
+    ]
+    if len(preserved) != 1:
+        raise ValueError("known source-fence preservation comment is missing or changed")
+
+    repaired = KNOWN_UNCLOSED_MODEL_FENCE.replace(
+        "\n\n1.", "\n    ```\n\n1.", 1
+    )
+    return (
+        source.replace(KNOWN_UNCLOSED_MODEL_FENCE, repaired, 1),
+        target.replace(preserved[0], "", 1),
+    )
 
 
 def parse_args() -> argparse.Namespace:
@@ -239,6 +281,14 @@ def validate(
         source = read_text(source_file)
         target = read_text(target_file)
         label = relative_path.as_posix()
+        if prefer_powershell:
+            try:
+                source, target = normalize_known_source_fence(
+                    source, target, relative_path
+                )
+            except ValueError as error:
+                errors.append(f"{label}: {error}")
+                continue
         validation_source = powershell_first(source) if prefer_powershell else source
         if prefer_powershell and powershell_first(target) != target:
             errors.append(f"{label}: an adjacent shell pair is not PowerShell first")
