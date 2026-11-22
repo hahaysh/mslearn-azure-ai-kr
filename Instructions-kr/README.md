@@ -30,6 +30,7 @@ upstream은 소문자 `instructions`, 이 fork는 대문자 `Instructions`를 �
 - YAML front matter의 키, `level`, `duration` 같은 구조 값은 유지하고 제목과 설명은 번역합니다.
 - 제목 수준, 번호 매기기, 목록, 표, 콜아웃 및 실행 단계의 순서는 유지합니다.
 - 같은 단계에 나란히 제시된 완전한 셸 예제와 셸별 목록은 사용자 요청에 따라 `PowerShell`, `Bash` 순서로 제공합니다. 명령 내용은 원문 그대로 유지하며, 이 순서 변경만 번역 계약의 예외로 허용합니다.
+- 셸 순서는 코드 펜스의 언어 태그가 아닌 셸 제목을 기준으로 확인합니다. `Bash` 제목 아래에 `azurecli` 코드 펜스가 사용된 경우도 PowerShell 우선 배치 대상입니다.
 - 번역본에만 추가된 Git Bash 전체 예제로 본문의 명령을 중복하지 않습니다. 검증된 호환성 보완은 해당 단계의 짧은 참고와 문제 해결 안내로 분리하고, 원문에 없는 보완임을 명시합니다.
 - 원문에 없는 절차를 추측하여 추가하지 않습니다.
 - 원문의 오류는 임의로 수정하지 않고 알려진 원문 문제에 기록합니다.
@@ -99,6 +100,8 @@ git status --short
 
 이 저장소의 한국어판 검증에는 `--powershell-first`를 사용합니다. 이 옵션은 같은 단계의 인접한 셸 예제를 PowerShell 우선 순서로 비교하며, 명령 수정이나 다른 단계로의 이동을 허용하지 않습니다. 옵션을 생략하면 기존의 엄격한 원문 순서 검증이 유지되므로 현재 한국어판의 의도적인 셸 순서 변경이 오류로 보고됩니다.
 
+**현재 검증기 제한:** [번들 검증기](../.github/skills/mslearn-korean-localization/scripts/validate_translation.py)는 `Bash` 제목 아래의 `azurecli` 코드 펜스와 `Powershell` 표기를 셸 쌍으로 인식하지 못합니다. 또한 Container Apps 관리 실습의 원문에서 닫히지 않은 펜스로 가려진 번호 단계를 한국어판에서 표시하면 단계 구조 차이로 보고합니다. 따라서 아래의 2026-11-23 보완 이후 위 명령은 두 실습에서 오류를 보고합니다. 검증기 개선이 필요하지만 이번 작업의 수정 범위 밖이므로 파일은 변경하지 않았습니다. 이번 검토에서는 해당 셸 태그와 알려진 원문 펜스만 메모리에서 보정하여 전체 구조를 검증하고, 별도로 모든 명령 내용과 단계별 배치의 보존을 확인했습니다.
+
 ## 동기화 상태
 
 | 항목 | 값 |
@@ -108,8 +111,8 @@ git status --short
 | 원본 브랜치 | `main` |
 | 기준 upstream 커밋 | `4bb868b5f05e233df0d0e2294dc75438038e1b6f` |
 | 이전 번역 기준 커밋 | `af79d9a3fd8c972b1de35467d638344241a99420` |
-| 마지막 검토일 | `2026-11-22` |
-| 전체 상태 | 한국어 실습 29개 문장·용어 교정, PowerShell 우선 재배치 및 검증 완료 |
+| 마지막 검토일 | `2026-11-23` |
+| 전체 상태 | 한국어 실습 29개 검토, 잔여 셸 쌍 7곳 PowerShell 우선 재배치 및 별도 보존 검증 완료; 번들 검증기 제한은 위 안내 참조 |
 | upstream 동기화 변경 | 기존 한국어 실습 21개 갱신, 6개 변경 없이 검토, 신규 실습 2개 번역 |
 | 한국어 교정 | 한국어 실습 29개 의미·문법·용어·문체·UI 병기 개선, 영문 원본 변경 없음 |
 | 영문 최신화 | 기존 영문 18개 갱신 및 신규 2개 추가, 모든 파일이 upstream 원문과 바이트 단위로 일치 |
@@ -173,6 +176,17 @@ git status --short
 - 검증: PowerShell 우선 옵션으로 실습 29개 통과. 셸 순서·줄바꿈·주석·중첩 코드·반복 적용 검사와 명령 변조·단계 이동 거부 검사를 통과했습니다.
 - 영문 원본, 클라이언트 코드, 배포 스크립트 및 환경 파일은 수정하지 않았습니다. 커밋, 푸시 및 게시 작업은 수행하지 않았습니다.
 
+### 2026-11-23 잔여 Bash 우선 구간 보완
+
+한국어 Markdown 파일 30개(실습 29개와 이 README)를 검토하여 두 실습의 잔여 Bash 우선 구간 7곳을 수정했습니다. 기준 upstream 커밋은 변경하지 않았습니다.
+
+- [Container Apps 배포](azure-container-apps/01-aca-deploy-containers.md): 앱 생성, 비밀 설정, 비밀 참조, 리비전 확인 및 로그 조회 예제 5쌍을 PowerShell 우선으로 재배치했습니다. `azurecli` 태그와 명령 내용은 유지하고 `Powershell` 제목 표기는 `PowerShell`로 통일했습니다.
+- [Container Apps 관리](azure-container-apps/02-aca-manage-containers.md): 루트 엔드포인트 확인과 앱 구성 조회 예제 2쌍을 재배치했습니다. 보이는 PowerShell 블록에 누락된 닫는 펜스를 추가하여 다음 번호 단계가 코드에 포함되지 않도록 했으며, Liquid 주석 안에 보존한 손상된 영문 원본은 내용 변경 없이 유지했습니다.
+- 셸 표시 검증: 전체 실습의 병렬 셸 예제 120쌍이 PowerShell 우선이며, 보이는 Bash 우선 쌍과 닫히지 않은 셸 코드 펜스는 없습니다.
+- 보존 검증: HEAD와 비교하여 전체 29개 실습의 명령 내용, 코드 펜스 언어 태그, 단계별 명령 배치 및 원문 보존 주석이 동일함을 확인했습니다.
+- 구조 검증: 검증기 파일을 수정하지 않고 `azurecli` 셸 쌍을 인식하도록 메모리에서 확장했습니다. 관리 실습만 Liquid 주석을 제외하고 원문의 누락된 펜스를 메모리에서 닫아 비교했으며, 전체 실습 29개가 통과했습니다. 수정하지 않은 번들 검증기는 배포 실습의 코드 순서와 관리 실습의 번호 단계에 관한 오류 2개를 보고합니다.
+- 수정 범위는 `Instructions-kr`의 실습 2개와 이 README뿐입니다. 기존 CLI 매개변수는 도움말로 확인했고, `git diff --check`도 통과했습니다. 커밋, 푸시 및 게시 작업은 수행하지 않았습니다.
+
 ## 동기화 당시 검증 결과
 
 2026-11-22 최신 upstream 동기화 및 검증 결과입니다. 이전 Pages 점검에서 보고된 21개 코드 블록 오류는 한국어판의 Bash 활성화 명령이 원문과 달랐기 때문입니다. 원문의 `source .venv/bin/activate`를 복원하고 Windows Git Bash용 설명은 유지했습니다.
@@ -218,7 +232,7 @@ git status --short
 - 공통 터미널 안내 일부는 환경 변수를 다시 로드하는 절차를 변수를 다시 만드는 명령으로 표현합니다. 원문의 표현에서 비롯된 문제이므로 이번 한국어 교정에서 절차를 임의로 변경하지 않았습니다.
 - `cosmosdb/04-persisent-agent-memory.md`: 실습 파일명의 `persisent`와 다운로드 ZIP 이름의 `persistant`는 원문 철자를 그대로 유지합니다. 링크 및 파일 대응을 위해 임의로 고치지 않습니다.
 - `app-sec-config/01-aks-retrieve-secrets.md`: 파일명은 AKS를 나타내지만 실습 내용은 Azure Key Vault 비밀 관리입니다.
-- `azure-container-apps/02-aca-manage-containers.md`: PowerShell 코드 펜스 하나가 닫히지 않아 뒤의 설명과 Bash 블록을 포함합니다. 번역본은 보이는 한국어 콘텐츠와 별도로 원본 블록을 Jekyll Liquid 주석 안에 보존합니다.
+- `azure-container-apps/02-aca-manage-containers.md`: PowerShell 코드 펜스 하나가 닫히지 않아 뒤의 설명과 Bash 블록을 포함합니다. 번역본은 원본 블록을 Jekyll Liquid 주석 안에 그대로 보존하고, 보이는 한국어 예제의 펜스는 닫아 PowerShell 우선 순서로 제공합니다.
 - `azure-database-postgresql/02-implement-vector-search.md`: 설명에서는 임베딩 차원을 384로 안내하지만 테이블 정의는 `vector(330)`을 사용합니다.
 - `azure-kubernetes-service/02-aks-configure-container.md`: 설명과 주석은 Secret 값을 base64로 인코딩한다고 안내하지만 매니페스트는 평문을 받는 `stringData`를 사용합니다.
 - `cosmosdb/01-build-rag-document-store.md`: 가상 환경은 `.venv`로 만들지만 문제 해결의 PowerShell 활성화 경로는 `.\venv\Scripts\Activate.ps1`입니다.

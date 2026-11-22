@@ -118,20 +118,6 @@ lab:
 
 1. 시스템 할당 관리 ID를 사용하여 컨테이너 앱을 만들고, 앱을 만들 때 레지스트리 인증을 구성합니다. **--registry-identity** 플래그는 Container Apps가 앱의 관리 ID를 사용하여 지정된 레지스트리에서 이미지를 가져오도록 합니다. 이 플래그를 Azure Container Registry와 함께 사용하면 CLI가 **AcrPull** 역할을 자동으로 할당합니다.
 
-    **Bash**
-    ```azurecli
-    az containerapp create \
-        --name $CONTAINER_APP_NAME \
-        --resource-group $RESOURCE_GROUP \
-        --environment $ACA_ENVIRONMENT \
-        --image "$ACR_SERVER/$CONTAINER_IMAGE" \
-        --ingress external \
-        --target-port $TARGET_PORT \
-        --env-vars MODEL_NAME=$MODEL_NAME \
-        --registry-server "$ACR_SERVER" \
-        --registry-identity system
-    ```
-
     **PowerShell**
     ```powershell
     az containerapp create `
@@ -146,13 +132,21 @@ lab:
         --registry-identity system
     ```
 
-1. 비밀을 만들고 환경 변수에서 참조합니다.
-
     **Bash**
     ```azurecli
-    az containerapp secret set -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
-        --secrets embeddings-api-key=$EMBEDDINGS_API_KEY
+    az containerapp create \
+        --name $CONTAINER_APP_NAME \
+        --resource-group $RESOURCE_GROUP \
+        --environment $ACA_ENVIRONMENT \
+        --image "$ACR_SERVER/$CONTAINER_IMAGE" \
+        --ingress external \
+        --target-port $TARGET_PORT \
+        --env-vars MODEL_NAME=$MODEL_NAME \
+        --registry-server "$ACR_SERVER" \
+        --registry-identity system
     ```
+
+1. 비밀을 만들고 환경 변수에서 참조합니다.
 
     **PowerShell**
     ```powershell
@@ -160,13 +154,13 @@ lab:
         --secrets embeddings-api-key=$env:EMBEDDINGS_API_KEY
     ```
 
-1. 환경 변수에서 비밀을 참조합니다. 이 명령은 새 리비전을 만들어 앱을 다시 시작하므로 비밀 변경 내용이 적용됩니다.
-
     **Bash**
     ```azurecli
-    az containerapp update -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
-        --set-env-vars EMBEDDINGS_API_KEY=secretref:embeddings-api-key
+    az containerapp secret set -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
+        --secrets embeddings-api-key=$EMBEDDINGS_API_KEY
     ```
+
+1. 환경 변수에서 비밀을 참조합니다. 이 명령은 새 리비전을 만들어 앱을 다시 시작하므로 비밀 변경 내용이 적용됩니다.
 
     **PowerShell**
     ```powershell
@@ -174,16 +168,22 @@ lab:
         --set-env-vars EMBEDDINGS_API_KEY=secretref:embeddings-api-key
     ```
 
-1. 다음 명령을 실행하여 새 리비전이 만들어졌는지 확인합니다.
-
     **Bash**
     ```azurecli
-    az containerapp revision list -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP -o table
+    az containerapp update -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
+        --set-env-vars EMBEDDINGS_API_KEY=secretref:embeddings-api-key
     ```
+
+1. 다음 명령을 실행하여 새 리비전이 만들어졌는지 확인합니다.
 
     **PowerShell**
     ```powershell
     az containerapp revision list -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP -o table
+    ```
+
+    **Bash**
+    ```azurecli
+    az containerapp revision list -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP -o table
     ```
 
     리비전 이름은 `--0000002`와 같은 접미사로 끝나며, 이는 두 번째 리비전임을 나타냅니다. 환경 변수나 비밀을 변경하면 Container Apps는 업데이트된 구성으로 앱을 다시 시작하기 위해 새 리비전을 만듭니다. 오래된 비활성 리비전은 시간이 지나면서 정리될 수 있습니다.
@@ -253,14 +253,14 @@ lab:
 
 1. 다음 명령을 실행하여 시작 및 런타임 신호를 확인하는 로그를 검토합니다. 이 명령은 최근 콘솔 출력만 표시합니다. 기록 로그 및 고급 문제 해결 데이터는 Container Apps 환경과 연결된 Log Analytics 작업 영역에 유지됩니다.
 
+    **PowerShell**
+    ```powershell
+    az containerapp logs show -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP
+    ```
+
     **Bash**
     ```azurecli
     az containerapp logs show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP
-    ```
-
-    **Powershell**
-    ```powershell
-    az containerapp logs show -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP
     ```
 
     작업자가 생성되고 포트 8000에서 수신 대기 중임을 보여 주는 **gunicorn** 시작 메시지를 확인합니다. 또한 curl 명령의 HTTP 요청 로그(GET /health, POST /process 등)도 확인할 수 있습니다.

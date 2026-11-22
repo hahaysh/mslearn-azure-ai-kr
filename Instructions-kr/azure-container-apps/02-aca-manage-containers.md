@@ -175,12 +175,16 @@ lab:
 
 1. 다음 명령을 실행하여 루트 엔드포인트를 확인하고 API 소비자 관점에서 증상을 관찰합니다. 이제 **model.name** 필드에는 구성된 값 대신 기본값인 **not-configured**가 표시됩니다.
 
+    **PowerShell**
+    ```powershell
+    (Invoke-RestMethod -Uri "https://$FQDN/").model
+    ```
+
     **Bash**
     ```bash
     curl -s "https://$FQDN/" | jq .model
     ```
 
-    **PowerShell**
     {% comment %}
 원문의 미종료 PowerShell 펜스를 동기화 검증용으로 보존합니다.
     ```powershell
@@ -194,20 +198,18 @@ lab:
         --query "properties.template.containers[0].env" -o table
     ```
     {% endcomment %}
-    ```powershell
-    (Invoke-RestMethod -Uri "https://$FQDN/").model
 
 1. 다음 명령을 실행하여 컨테이너 앱의 구성을 확인하고 근본 원인을 진단합니다. 다음 명령을 실행하여 **MODEL_NAME** 환경 변수가 없는지 확인합니다.
-
-    **Bash**
-    ```bash
-    az containerapp show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
-        --query "properties.template.containers[0].env" -o table
-    ```
 
     **PowerShell**
     ```powershell
     az containerapp show -n $env:CONTAINER_APP_NAME -g $env:RESOURCE_GROUP `
+        --query "properties.template.containers[0].env" -o table
+    ```
+
+    **Bash**
+    ```bash
+    az containerapp show -n $CONTAINER_APP_NAME -g $RESOURCE_GROUP \
         --query "properties.template.containers[0].env" -o table
     ```
 
